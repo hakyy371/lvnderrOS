@@ -9,12 +9,11 @@
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
     <application
-        android:allowBackup="false"
-        android:label="lvnderrOS"
-        android:icon="@drawable/gojo"
-        android:roundIcon="@drawable/gojo"
-        android:theme="@android:style/Theme.Material.NoActionBar">
-
+    android:allowBackup="false"
+    android:label="lvnderrOS"
+    android:icon="@drawable/gojo"
+    android:roundIcon="@drawable/gojo"
+    android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:exported="true">
