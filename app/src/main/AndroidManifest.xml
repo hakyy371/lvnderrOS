@@ -24,17 +24,6 @@
 
         </activity>
 
-        <service
-            android:name=".LvnderUserService"
-            android:exported="true"
-            android:permission="moe.shizuku.manager.permission.API_V23">
-
-            <intent-filter>
-                <action android:name="rikka.shizuku.intent.action.BIND_USER_SERVICE" />
-            </intent-filter>
-
-        </service>
-
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
