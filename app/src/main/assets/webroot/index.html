@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lvnderrOS</title>
+
+<style>
+:root {
+    --bg: #080511;
+    --panel: rgba(25,20,45,.72);
+    --purple: #bb86fc;
+    --muted: #a499d6;
+    --white: #fff;
+    --border: rgba(187,134,252,.18);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    padding: 22px 16px calc(125px + env(safe-area-inset-bottom));
+    font-family: -apple-system, BlinkMacSystemFont,
+                 "Segoe UI", Roboto, sans-serif;
+    background:
+        radial-gradient(circle at 90% 0%, #241343 0%, transparent 42%),
+        radial-gradient(circle at 0% 60%, #160d29 0%, transparent 40%),
+        var(--bg);
+    color: #e2dcf8;
+    overflow-x: hidden;
+}
+
+button {
+    font-family: inherit;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+    margin: auto;
+}
+
+/* ===============================
+   PAGE TRANSITION
+=============================== */
+
+.page {
+    display: none;
+    opacity: 0;
+}
+
+.page.active {
+    display: block;
+    animation: pageEnter .55s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.985);
+        filter: blur(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+/* ===============================
+   HOME
+=============================== */
+
+.home-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 5px 22px;
+}
+
+.home-brand {
+    font-size: 25px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    color: white;
+    text-shadow: 0 0 18px rgba(187,134,252,.4);
+}
+
+.home-subtitle {
+    color: #967bb8;
+    font-size: 9px;
+    letter-spacing: 3px;
+    margin-top: 5px;
+}
+
+.home-version {
+    color: #d5b5ff;
+    background: rgba(187,134,252,.12);
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+}
+
+.anime-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 1px solid rgba(187,134,252,.3);
+    background: #10091c;
+    box-shadow: 0 12px 35px #0008;
+}
+
+.anime-hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 330px;
+    object-fit: contain;
+}
+
+.hero-tag {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    background: rgba(10,5,20,.75);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(187,134,252,.4);
+    color: #d9baff;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.home-intro {
+    padding: 25px 7px 22px;
+}
+
+.home-intro h1 {
+    font-size: 27px;
+    font-weight: 900;
+    margin: 0;
+    background: linear-gradient(90deg,#fff,#d8b4ff,#9c65ec);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.home-author {
+    color: var(--purple);
+    font-size: 10px;
+    letter-spacing: 3px;
+    margin-top: 9px;
+}
+
+.home-description {
+    color: #9386a8;
+    font-size: 11px;
+    line-height: 1.8;
+    margin-top: 12px;
+}
+
+.home-line {
+    height: 1px;
+    background: linear-gradient(90deg,transparent,#bb86fc,transparent);
+    margin: 5px 0 22px;
+}
+
+.home-footer {
+    text-align: center;
+    padding: 12px 0 20px;
+}
+
+.home-footer-title {
+    color: #b98aff;
+    font-size: 10px;
+    letter-spacing: 4px;
+}
+
+.home-footer-text {
+    color: #665675;
+    font-size: 9px;
+    margin-top: 8px;
+}
+
+/* ===============================
+   APPLICATIONS
+=============================== */
+
+.app-heading {
+    padding: 12px 5px 22px;
+}
+
+.app-heading h2 {
+    margin: 0;
+    color: white;
+    font-size: 25px;
+}
+
+.app-heading p {
+    color: #8b80b6;
+    font-size: 12px;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 14px;
+}
+
+.app-item {
+    border: 1px solid var(--border);
+    background: rgba(25,20,45,.65);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 20px 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 13px;
+    min-height: 145px;
+    cursor: pointer;
+    transition:
+        transform .4s cubic-bezier(.22,1,.36,1),
+        background .4s ease,
+        border-color .4s ease,
+        box-shadow .4s ease;
+    animation: cardEnter .55s both;
+}
+
+.app-item:nth-child(2) { animation-delay: .07s; }
+.app-item:nth-child(3) { animation-delay: .14s; }
+.app-item:nth-child(4) { animation-delay: .21s; }
+
+@keyframes cardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.app-item:active {
+    transform: scale(.94);
+    background: rgba(187,134,252,.18);
+}
+
+.app-item img {
+    width: 76px;
+    height: 76px;
+    border-radius: 18px;
+    object-fit: cover;
+    box-shadow: 0 5px 18px #0007;
+}
+
+.app-item span {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ===============================
+   GAME DETAIL
+=============================== */
+
+.game-detail {
+    display: none;
+    opacity: 0;
+}
+
+.game-detail.show {
+    display: block;
+    animation: detailEnter .5s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes detailEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.98);
+        filter: blur(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+.game-detail.leaving {
+    animation: detailExit .22s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes detailExit {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+        filter: blur(3px);
+    }
+}
+
+.back-btn {
+    border: 1px solid var(--border);
+    background: rgba(187,134,252,.1);
+    color: var(--purple);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin: 5px 0 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.back-btn:active {
+    transform: scale(.94);
+}
+
+.game-title {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    background: rgba(25,20,45,.65);
+    border-radius: 16px;
+}
+
+.game-title img {
+    width: 53px;
+    height: 53px;
+    object-fit: cover;
+    border-radius: 13px;
+}
+
+.game-title h3 {
+    color: white;
+    margin: 0;
+    font-size: 16px;
+}
+
+.game-title p {
+    color: var(--muted);
+    font-size: 11px;
+    margin: 5px 0 0;
+}
+
+/* ===============================
+   FEATURE CARDS
+=============================== */
+
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    margin: 22px 0 12px;
+}
+
+.card {
+    background: var(--panel);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.07);
+    padding: 17px;
+    border-radius: 17px;
+    margin-bottom: 13px;
+    box-shadow: 0 5px 18px #0002;
+
+    transition:
+        transform .4s cubic-bezier(.22,1,.36,1),
+        border-color .35s ease,
+        background .35s ease,
+        box-shadow .35s ease;
+
+    animation: featureEnter .5s both;
+}
+
+.card:nth-of-type(2) { animation-delay: .04s; }
+.card:nth-of-type(3) { animation-delay: .08s; }
+.card:nth-of-type(4) { animation-delay: .12s; }
+.card:nth-of-type(5) { animation-delay: .16s; }
+.card:nth-of-type(6) { animation-delay: .20s; }
+
+@keyframes featureEnter {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card.feature-enabled {
+    border-color: rgba(187,134,252,.55);
+    background: rgba(65,35,95,.32);
+    box-shadow: 0 0 20px rgba(187,134,252,.09);
+}
+
+.feature-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.feature-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.feature-info h3 {
+    font-size: 14px;
+    color: white;
+    margin: 0;
+}
+
+.feature-info p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 6px 0 0;
+}
+
+/* ===============================
+   SMOOTH TOGGLE
+=============================== */
+
+.switch {
+    position: relative;
+    width: 52px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    border-radius: 30px;
+    background: rgba(255,255,255,.12);
+    transition: background .4s ease, box-shadow .4s ease;
+}
+
+.slider:before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 5px #0005;
+    transition: transform .4s cubic-bezier(.22,1,.36,1);
+}
+
+.switch input:checked + .slider {
+    background: linear-gradient(135deg,#bb86fc,#9c27b0);
+    box-shadow: 0 0 14px rgba(187,134,252,.4);
+}
+
+.switch input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.switch input:disabled + .slider {
+    opacity: .45;
+    cursor: wait;
+}
+
+/* ===============================
+   TERMINAL
+=============================== */
+
+.log-container {
+    margin-top: 25px;
+    animation: featureEnter .6s ease both;
+}
+
+.log-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #8b80b6;
+    font-weight: 700;
+    margin-bottom: 9px;
+}
+
+#console-log {
+    background: rgba(8,6,17,.85);
+    padding: 15px;
+    border-radius: 12px;
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--purple);
+    border: 1px solid var(--border);
+    overflow-wrap: anywhere;
+    transition: color .3s ease, border-color .3s ease;
+}
+
+/* ===============================
+   FLOATING NAVIGATION
+=============================== */
+
+.bottom-nav {
+    position: fixed;
+    z-index: 99;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    left: 18px;
+    right: 18px;
+    max-width: 440px;
+    margin: auto;
+    border: 1px solid rgba(187,134,252,.22);
+    border-radius: 22px;
+    padding: 10px 20px;
+    background: rgba(15,9,29,.88);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    box-shadow: 0 10px 35px #0007;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 55px;
+}
+
+.nav-btn {
+    position: relative;
+    border: 0;
+    background: transparent;
+    color: #80749f;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    min-width: 65px;
+    padding: 7px 10px;
+    border-radius: 14px;
+    transition: .35s cubic-bezier(.22,1,.36,1);
+}
+
+.nav-btn span {
+    display: block;
+    font-size: 23px;
+    margin-bottom: 4px;
+    transition: transform .35s ease, filter .35s ease;
+}
+
+.nav-btn.active {
+    color: #d8b4ff;
+    background: rgba(187,134,252,.09);
+}
+
+.nav-btn.active span {
+    transform: translateY(-2px) scale(1.08);
+    filter: drop-shadow(0 0 8px #bb86fc);
+}
+
+.nav-btn:active {
+    transform: scale(.92);
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+
+@media(max-width:360px) {
+    .home-brand { font-size: 22px; }
+    .home-intro h1 { font-size: 24px; }
+
+    .app-item img {
+        width: 65px;
+        height: 65px;
+    }
+
+    .bottom-nav {
+        gap: 35px;
+        left: 14px;
+        right: 14px;
+        padding: 9px 15px;
+    }
+}
+
+/* ===============================
+   REDUCED MOTION
+=============================== */
+
+@media(prefers-reduced-motion:reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- ================= HOME ================= -->
+
+<section id="homePage" class="page active">
+
+    <div class="home-top">
+        <div>
+            <div class="home-brand">lvnderrOS</div>
+            <div class="home-subtitle">ANIME DARK EDITION</div>
+        </div>
+        <div class="home-version">V.1.0</div>
+    </div>
+
+    <div class="anime-hero">
+        <div class="hero-tag">SPECIAL EDITION</div>
+        <img src="gojobattle.jpg" alt="Gojo vs Sukuna">
+    </div>
+
+    <div class="home-intro">
+        <h1>lvnderrOS Center</h1>
+        <div class="home-author">BY HKYY LAVENDERR</div>
+        <div class="home-description">
+            A unique Android experience inspired by the world
+            of anime. Designed with elegance, darkness,
+            and futuristic aesthetics.
+        </div>
+    </div>
+
+    <div class="home-line"></div>
+
+    <div class="home-footer">
+        <div class="home-footer-title">BEYOND LIMITS</div>
+        <div class="home-footer-text">
+            LVNDERR OS • ANDROID MODULE
+        </div>
+    </div>
+
+</section>
+
+<!-- ================= APPLICATIONS ================= -->
+
+<section id="appsPage" class="page">
+
+    <div class="app-heading">
+        <h2>Applications</h2>
+        <p>Select your gaming platform</p>
+    </div>
+
+    <div class="app-grid" id="appGrid">
+
+        <button class="app-item" onclick="openGame('ff')">
+            <img src="icons/ffmax.png" alt="Free Fire MAX">
+            <span>Free Fire MAX</span>
+        </button>
+
+        <button class="app-item" onclick="openGame('pubg')">
+            <img src="icons/pubg.png" alt="PUBG Mobile">
+            <span>PUBG Mobile</span>
+        </button>
+
+        <button class="app-item" onclick="openGame('ml')">
+            <img src="icons/mlbb.png" alt="Mobile Legends">
+            <span>Mobile Legends</span>
+        </button>
+
+        <button class="app-item" onclick="openGame('system')">
+            <img src="icons/system.png" alt="System Performance">
+            <span>System Performance</span>
+        </button>
+
+    </div>
+
+    <!-- GAME DETAIL -->
+
+    <div class="game-detail" id="gameDetail">
+
+        <button class="back-btn" onclick="closeGame()">
+            ← Back to Applications
+        </button>
+
+        <div class="game-title">
+            <img id="selectedGameIcon" src="" alt="">
+            <div>
+                <h3 id="selectedGameName">Game</h3>
+                <p id="selectedGameDescription">Gaming Optimization Center</p>
+            </div>
+        </div>
+
+        <div id="gameContent"></div>
+        <div id="systemContent"></div>
+
+        <div class="log-container">
+            <div class="log-title">Engine Output Terminal</div>
+            <div id="console-log">
+                &gt; lvnderrOS binary engine terhubung.
+                Siap digunakan!
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+<!-- ================= BOTTOM NAV ================= -->
+
+<nav class="bottom-nav">
+
+    <button class="nav-btn active" id="homeNav"
+        onclick="showPage('home')">
+        <span>⌂</span>
+        HOME
+    </button>
+
+    <button class="nav-btn" id="appsNav"
+        onclick="showPage('apps')">
+        <span>▦</span>
+        APLIKASI
+    </button>
+
+</nav>
+
+<script>
+
+/* =================================
+   NAVIGATION
+================================= */
+
+let currentPage = "home";
+let isNavigating = false;
+
+function showPage(page) {
+
+    if (isNavigating || currentPage === page) return;
+
+    const home = document.getElementById("homePage");
+    const apps = document.getElementById("appsPage");
+
+    const target = page === "apps" ? apps : home;
+    const current = page === "apps" ? home : apps;
+
+    if (!target || !current) return;
+
+    isNavigating = true;
+
+    document.getElementById("homeNav")
+        .classList.toggle("active", page === "home");
+
+    document.getElementById("appsNav")
+        .classList.toggle("active", page === "apps");
+
+    current.classList.remove("active");
+
+    setTimeout(() => {
+
+        current.style.display = "none";
+
+        target.style.display = "block";
+        target.classList.remove("active");
+
+        void target.offsetWidth;
+
+        target.classList.add("active");
+
+        currentPage = page;
+
+        window.scrollTo({top: 0, behavior: "smooth"});
+
+        setTimeout(() => {
+            isNavigating = false;
+        }, 550);
+
+    }, 100);
+}
+
+/* =================================
+   GAME DATA
+================================= */
+
+const gameData = {
+
+    ff: {
+        name: "Free Fire MAX",
+        icon: "icons/ffmax.png",
+        description: "Gaming Optimization Center"
+    },
+
+    pubg: {
+        name: "PUBG Mobile",
+        icon: "icons/pubg.png",
+        description: "Gaming Optimization Center"
+    },
+
+    ml: {
+        name: "Mobile Legends",
+        icon: "icons/mlbb.png",
+        description: "Gaming Optimization Center"
+    },
+
+    system: {
+        name: "System Performance",
+        icon: "icons/system.png",
+        description: "Android System Optimization"
+    }
+
+};
+
+/* =================================
+   FEATURE DATA
+================================= */
+
+const gameTweaks = [
+
+    {
+        id: "lvnderSF",
+        name: "SurfaceFlinger Optimizer",
+        desc: "Tuning VSYNC adaptif dan optimasi rendering."
+    },
+
+    {
+        id: "lvnderrRender",
+        name: "SkiaGL Render Engine",
+        desc: "Pengaturan rendering grafis Android."
+    },
+
+    {
+        id: "lvnderrNetwork",
+        name: "Network Latency Tuner",
+        desc: "Pengaturan jaringan dan respons koneksi."
+    },
+
+    {
+        id: "lvnderrDriverGame",
+        name: "Game Driver",
+        desc: "Pengaturan driver grafis untuk game."
+    },
+
+    {
+        id: "lvnderMLBB",
+        name: "Game Compilation",
+        desc: "Pengaturan kompilasi aplikasi game."
+    },
+
+    {
+        id: "lvnderapp",
+        name: "Game Environment Stabilizer",
+        desc: "Membantu menjaga kestabilan lingkungan game."
+    }
+
+];
+
+const mlTweaks = [];
+
+const systemTweaks = [
+
+    {
+        id: "lvnderthermal",
+        name: "Thermal Service",
+        desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu."
+    },
+
+    {
+        id: "lvnderrPERF",
+        name: "Performance Boost",
+        desc: "Pengaturan profil performa perangkat."
+    },
+
+    {
+        id: "lvnderr60HZ",
+        name: "Refresh Rate 60Hz",
+        desc: "Memilih refresh rate 60Hz."
+    },
+
+    {
+        id: "lvnderr90HZ",
+        name: "Refresh Rate 90Hz",
+        desc: "Memilih refresh rate 90Hz."
+    },
+
+    {
+        id: "lvnderr120HZ",
+        name: "Refresh Rate 120Hz",
+        desc: "Memilih refresh rate 120Hz jika didukung."
+    },
+
+    {
+        id: "lvnderrdevice",
+        name: "Device Identifier",
+        desc: "Identifikasi profil perangkat."
+    },
+
+    {
+        id: "lvnderrWindows",
+        name: "Windows UI Optimizer",
+        desc: "Pengaturan animasi antarmuka Android."
+    },
+
+    {
+        id: "lvnderrSqlite",
+        name: "SQLite Optimizer",
+        desc: "Pengaturan database aplikasi."
+    },
+
+    {
+        id: "lvnderrCPU",
+        name: "CPU Performance",
+        desc: "Pengaturan profil CPU yang didukung perangkat."
+    }
+
+];
+
+/* =================================
+   OPEN GAME
+================================= */
+
+function openGame(game) {
+
+    const data = gameData[game];
+
+    if (!data) return;
+
+    const grid = document.getElementById("appGrid");
+    const heading = document.querySelector(".app-heading");
+    const detail = document.getElementById("gameDetail");
+
+    grid.style.display = "none";
+    heading.style.display = "none";
+
+    detail.classList.remove("show", "leaving");
+
+    document.getElementById("selectedGameIcon").src = data.icon;
+    document.getElementById("selectedGameName").textContent = data.name;
+    document.getElementById("selectedGameDescription").textContent =
+        data.description;
+
+    document.getElementById("gameContent").innerHTML = "";
+    document.getElementById("systemContent").innerHTML = "";
+
+    if (game === "system") {
+
+        document.getElementById("systemContent").innerHTML =
+            '<div class="section-title">System Tweaks</div>';
+
+        renderFeatures(systemTweaks, "systemContent");
+
+    } else {
+
+        document.getElementById("gameContent").innerHTML =
+            '<div class="section-title">Gaming Tweaks</div>';
+
+        let features = [...gameTweaks];
+
+        if (game === "ml") {
+            features.push(...mlTweaks);
+        }
+
+        renderFeatures(features, "gameContent");
+    }
+
+    detail.style.display = "block";
+
+    void detail.offsetWidth;
+
+    detail.classList.add("show");
+
+    window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+/* =================================
+   CLOSE GAME
+================================= */
+
+function closeGame() {
+
+    const detail = document.getElementById("gameDetail");
+
+    detail.classList.remove("show");
+    detail.classList.add("leaving");
+
+    setTimeout(() => {
+
+        detail.style.display = "none";
+        detail.classList.remove("leaving");
+
+        document.getElementById("appGrid").style.display = "grid";
+
+        document.querySelector(".app-heading").style.display = "block";
+
+        document.getElementById("gameContent").innerHTML = "";
+        document.getElementById("systemContent").innerHTML = "";
+
+        window.scrollTo({top: 0, behavior: "smooth"});
+
+    }, 230);
+}
+
+/* =================================
+   RENDER FEATURES
+================================= */
+
+function renderFeatures(features, target) {
+
+    const container = document.getElementById(target);
+
+    features.forEach(feature => {
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <div class="feature-card">
+                <div class="feature-info">
+                    <h3>${feature.name}</h3>
+                    <p>${feature.desc}</p>
+                </div>
+
+                <label class="switch">
+                    <input type="checkbox"
+                        data-binary="${feature.id}"
+                        onchange="eksekusiTweak(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        `;
+
+        container.appendChild(card);
+
+    });
+}
+
+/* =================================
+   BINARY BRIDGE
+================================= */
+
+const allowedBinaries = new Set([
+    "lvnderSF",
+    "lvnderthermal",
+    "lvnderrPERF",
+    "lvnderrRender",
+    "lvnderr60HZ",
+    "lvnderr90HZ",
+    "lvnderr120HZ",
+    "lvnderrdevice",
+    "lvnderrNetwork",
+    "lvnderrWindows",
+    "lvnderrSqlite",
+    "lvnderrDriverGame",
+    "lvnderrCPU",
+    "lvnderMLBB",
+    "lvnderapp"
+]);
+
+function updateLog(message, color = "#bb86fc") {
+
+    const log = document.getElementById("console-log");
+
+    log.style.opacity = "0";
+
+    setTimeout(() => {
+        log.textContent = "> " + message;
+        log.style.color = color;
+        log.style.opacity = "1";
+    }, 120);
+}
+
+/* =================================
+   EXECUTE TWEAK
+================================= */
+
+
+async function eksekusiTweak(input) {
+
+    const binary = input.dataset.binary;
+    const enabled = input.checked;
+    const card = input.closest(".card");
+
+    if (!allowedBinaries.has(binary)) {
+        input.checked = false;
+        updateLog("ERR: Binary tidak terdaftar.", "#ff5252");
+        return;
+    }
+
+    if (!window.lvnder || typeof window.lvnder.exec !== "function") {
+        input.checked = false;
+        updateLog("ERR: Bridge LVNDERR tidak tersedia.", "#ff5252");
+        return;
+    }
+
+    input.disabled = true;
+
+    const state = enabled ? "aktif" : "nonaktif";
+
+    updateLog(
+        "Menjalankan " + binary + " " + state + "..."
+    );
+
+    try {
+
+        const result = await window.lvnder.exec(binary, state);
+
+        if (!result || result.success !== true) {
+            throw new Error(
+                result?.error || "Eksekusi tweak gagal."
+            );
+        }
+
+        if (card) {
+            card.classList.toggle("feature-enabled", enabled);
+        }
+
+        updateLog(
+            binary + " berhasil dijalankan.",
+            "#00e676"
+        );
+
+    } catch (error) {
+
+        input.checked = !enabled;
+
+        if (card) {
+            card.classList.toggle("feature-enabled", !enabled);
+        }
+
+        updateLog(
+            "ERR: " + error.message,
+            "#ff5252"
+        );
+
+    } finally {
+
+        input.disabled = false;
+
+    }
+}
+
+
+/* =================================
+   INITIALIZATION
+================================= */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.getElementById("homePage").style.display = "block";
+    document.getElementById("appsPage").style.display = "none";
+
+    currentPage = "home";
+
+});
+
+</script>
+
+</body>
+</html>
