@@ -1051,8 +1051,9 @@ function renderFeatures(features, target) {
     });
 }
 
+
 /* =================================
-   BINARY BRIDGE
+   LVNDERR BINARY BRIDGE
 ================================= */
 
 const allowedBinaries = new Set([
@@ -1074,7 +1075,6 @@ const allowedBinaries = new Set([
 ]);
 
 function updateLog(message, color = "#bb86fc") {
-
     const log = document.getElementById("console-log");
 
     log.style.opacity = "0";
@@ -1090,7 +1090,6 @@ function updateLog(message, color = "#bb86fc") {
    EXECUTE TWEAK
 ================================= */
 
-
 async function eksekusiTweak(input) {
 
     const binary = input.dataset.binary;
@@ -1103,9 +1102,16 @@ async function eksekusiTweak(input) {
         return;
     }
 
-    if (!window.lvnder || typeof window.lvnder.exec !== "function") {
+    if (!window.lvnder ||
+        typeof window.lvnder.exec !== "function") {
+
         input.checked = false;
-        updateLog("ERR: Bridge LVNDERR tidak tersedia.", "#ff5252");
+
+        updateLog(
+            "ERR: Bridge Shizuku belum tersedia.",
+            "#ff5252"
+        );
+
         return;
     }
 
@@ -1113,18 +1119,15 @@ async function eksekusiTweak(input) {
 
     const state = enabled ? "aktif" : "nonaktif";
 
-    updateLog(
-        "Menjalankan " + binary + " " + state + "..."
-    );
+    updateLog("Menjalankan " + binary + "...");
 
     try {
 
-        const raw = await window.lvnder.exec(binary, state);
-const result = JSON.parse(raw);
+        const result = await window.lvnder.exec(binary, state);
 
         if (!result || result.success !== true) {
             throw new Error(
-                result?.error || "Eksekusi tweak gagal."
+                result?.error || "Eksekusi gagal."
             );
         }
 
