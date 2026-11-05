@@ -1090,6 +1090,7 @@ function updateLog(message, color = "#bb86fc") {
    EXECUTE TWEAK
 ================================= */
 
+
 async function eksekusiTweak(input) {
 
     const binary = input.dataset.binary;
@@ -1119,23 +1120,34 @@ async function eksekusiTweak(input) {
 
     const state = enabled ? "aktif" : "nonaktif";
 
-    updateLog("Menjalankan " + binary + "...");
+    updateLog(
+        "Menjalankan " + binary + " " + state + "..."
+    );
 
     try {
 
-        const result = await window.lvnder.exec(binary, state);
+        const raw = await window.lvnder.exec(binary, state);
+
+        // Membaca respons JSON dari Kotlin
+        const result = typeof raw === "string"
+            ? JSON.parse(raw)
+            : raw;
 
         if (!result || result.success !== true) {
             throw new Error(
-                result?.error || "Eksekusi gagal."
+                result?.error || "Eksekusi binary gagal."
             );
         }
 
         if (card) {
-            card.classList.toggle("feature-enabled", enabled);
+            card.classList.toggle(
+                "feature-enabled",
+                enabled
+            );
         }
 
         updateLog(
+            result.output ||
             binary + " berhasil dijalankan.",
             "#00e676"
         );
@@ -1145,11 +1157,14 @@ async function eksekusiTweak(input) {
         input.checked = !enabled;
 
         if (card) {
-            card.classList.toggle("feature-enabled", !enabled);
+            card.classList.toggle(
+                "feature-enabled",
+                !enabled
+            );
         }
 
         updateLog(
-            "ERR: " + error.message,
+            "ERR: " + (error.message || "Eksekusi gagal."),
             "#ff5252"
         );
 
