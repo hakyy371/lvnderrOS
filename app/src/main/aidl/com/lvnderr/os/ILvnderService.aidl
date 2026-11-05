@@ -1,7 +1,7 @@
-
 package com.lvnderr.os;
 
 interface ILvnderService {
-    void destroy() = 16777114;
+    void destroy();
     String exec(String binary, String state);
 }
+
