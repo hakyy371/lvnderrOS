@@ -1,60 +1,55 @@
+
 package com.lvnderr.os
 
-import android.app.Service
-import android.content.Intent
-import android.os.IBinder
+class LvnderUserService : ILvnderService.Stub() {
 
-class LvnderUserService : Service() {
+    override fun exec(binary: String, state: String): String {
+        val allowed = setOf(
+            "lvnderapp",
+            "lvnderMLBB",
+            "lvnderr60HZ",
+            "lvnderr90HZ",
+            "lvnderr120HZ",
+            "lvnderrCPU",
+            "lvnderrdevice",
+            "lvnderrDriverGame",
+            "lvnderrNetwork",
+            "lvnderrPERF",
+            "lvnderrRender",
+            "lvnderrSqlite",
+            "lvnderrWindows",
+            "lvnderSF",
+            "lvnderthermal"
+        )
 
-    private val binder = object : ILvnderService.Stub() {
+        require(binary in allowed)
+        require(state == "aktif" || state == "nonaktif")
 
-        override fun exec(binary: String, state: String): String {
-            val allowed = setOf(
-                "lvnderapp",
-                "lvnderMLBB",
-                "lvnderr60HZ",
-                "lvnderr90HZ",
-                "lvnderr120HZ",
-                "lvnderrCPU",
-                "lvnderrdevice",
-                "lvnderrDriverGame",
-                "lvnderrNetwork",
-                "lvnderrPERF",
-                "lvnderrRender",
-                "lvnderrSqlite",
-                "lvnderrWindows",
-                "lvnderSF",
-                "lvnderthermal"
-            )
+        val file = java.io.File("/system/bin/$binary")
 
-            require(binary in allowed)
-            require(state == "aktif" || state == "nonaktif")
-
-            val process = ProcessBuilder(
-                "/system/bin/$binary",
-                state
-            ).redirectErrorStream(true).start()
-
-            val output = process.inputStream.bufferedReader().use {
-                it.readText()
-            }
-
-            val exitCode = process.waitFor()
-
-            if (exitCode != 0) {
-                throw IllegalStateException(output)
-            }
-
-            return output
+        require(file.isFile && file.canExecute()) {
+            "Binary tidak ditemukan atau tidak dapat dieksekusi"
         }
 
-        override fun destroy() {
-            stopSelf()
+        val process = ProcessBuilder(
+            file.absolutePath,
+            state
+        ).redirectErrorStream(true).start()
+
+        val output = process.inputStream.bufferedReader().use {
+            it.readText()
         }
+
+        val exitCode = process.waitFor()
+
+        check(exitCode == 0) {
+            output.ifBlank { "Tweak gagal dijalankan: $exitCode" }
+        }
+
+        return output
     }
 
-    override fun onBind(intent: Intent?): IBinder {
-        return binder
+    override fun destroy() {
+        System.exit(0)
     }
 }
-packageackage
