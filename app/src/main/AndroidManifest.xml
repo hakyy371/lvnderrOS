@@ -11,8 +11,8 @@
     <application
     android:allowBackup="false"
     android:label="lvnderrOS"
-    android:icon="@drawable/gojo"
-    android:roundIcon="@drawable/gojo"
+    android:icon="@drawable/gojobattle"
+android:roundIcon="@drawable/gojobattle"
     android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
             android:name=".MainActivity"
