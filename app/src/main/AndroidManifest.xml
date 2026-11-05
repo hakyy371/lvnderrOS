@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -11,6 +12,8 @@
     <application
         android:allowBackup="false"
         android:label="lvnderrOS"
+        android:icon="@drawable/gojo"
+        android:roundIcon="@drawable/gojo"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
         <activity
