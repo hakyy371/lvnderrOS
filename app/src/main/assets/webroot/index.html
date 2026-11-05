@@ -1119,7 +1119,8 @@ async function eksekusiTweak(input) {
 
     try {
 
-        const result = await window.lvnder.exec(binary, state);
+        const raw = await window.lvnder.exec(binary, state);
+const result = JSON.parse(raw);
 
         if (!result || result.success !== true) {
             throw new Error(
