@@ -1,19 +1,14 @@
-
 package com.lvnderr.os
 
-import android.content.Context
-import rikka.shizuku.Shizuku
-import rikka.shizuku.Shizuku.UserServiceArgs
-import java.io.BufferedReader
-import java.io.InputStreamReader
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
 
-class LvnderUserService : android.app.Service() {
+class LvnderUserService : Service() {
 
-    override fun onBind(intent: android.content.Intent?) =
-        null
+    private val binder = object : ILvnderService.Stub() {
 
-    companion object {
-        fun execute(binary: String, state: String): String {
+        override fun exec(binary: String, state: String): String {
             val allowed = setOf(
                 "lvnderapp",
                 "lvnderMLBB",
@@ -32,13 +27,8 @@ class LvnderUserService : android.app.Service() {
                 "lvnderthermal"
             )
 
-            require(binary in allowed) {
-                "Binary tidak terdaftar"
-            }
-
-            require(state == "aktif" || state == "nonaktif") {
-                "Status tidak valid"
-            }
+            require(binary in allowed)
+            require(state == "aktif" || state == "nonaktif")
 
             val process = ProcessBuilder(
                 "/system/bin/$binary",
@@ -57,5 +47,14 @@ class LvnderUserService : android.app.Service() {
 
             return output
         }
+
+        override fun destroy() {
+            stopSelf()
+        }
+    }
+
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
     }
 }
+packageackage
