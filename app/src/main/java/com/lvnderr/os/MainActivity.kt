@@ -110,7 +110,22 @@ class MainActivity : Activity() {
         fun exec(binary: String, state: String): String {
             return try {
                 val service = remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
-                val output = service.exec(binary, state)
+                
+                var output = ""
+                // === LOGIKA PENERJEMAH UNTUK PRELOADER ===
+                if (binary == "lvnderrpreload") {
+                    if (state == "aktif") {
+                        // Perintah Illuminati: preload MLBB & FF, 4 thread, verbose
+                        val args = "-a com.mobile.legends -a com.dts.freefiremax -t 4 -v"
+                        output = service.exec(binary, args)
+                    } else {
+                        output = "Preload dihentikan."
+                    }
+                } else {
+                    // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
+                    output = service.exec(binary, state)
+                }
+
                 JSONObject().apply {
                     put("success", true)
                     put("output", output)
