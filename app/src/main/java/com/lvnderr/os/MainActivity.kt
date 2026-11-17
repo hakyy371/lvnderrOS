@@ -129,18 +129,23 @@ class MainActivity : Activity() {
             return Shizuku.pingBinder() && remoteService != null
         }
 
-        // Fungsi Device Info (Chipset diperbaiki, CPU/GPU dihapus)
+        // Fungsi Device Info (Chipset diperbaiki dengan Fallback Berlapis)
         @JavascriptInterface
         fun getDeviceInfo(): String {
             return try {
-                // Menggunakan ro.hardware, ro.board.platform, atau ro.soc.model untuk Chipset
                 val script = """
+                    CHIPSET_VAL=${'$'}(getprop ro.soc.model)
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.board.platform); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.hardware); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.product.board); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(grep -m1 'Hardware' /proc/cpuinfo | cut -d: -f2 | xargs); fi
+                    
                     echo "DEVICE   : ${'$'}(getprop ro.product.model)"
                     echo "BRAND    : ${'$'}(getprop ro.product.brand)"
                     echo "ANDROID  : ${'$'}(getprop ro.build.version.release)"
                     echo "SDK      : ${'$'}(getprop ro.build.version.sdk)"
                     echo "KERNEL   : ${'$'}(uname -r)"
-                    echo "CHIPSET  : ${'$'}(getprop ro.soc.model || getprop ro.board.platform || getprop ro.hardware)"
+                    echo "CHIPSET  : ${'$'}CHIPSET_VAL"
                 """.trimIndent()
 
                 val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", script))
