@@ -1,4 +1,3 @@
-
 package com.lvnderr.os
 
 import android.app.Activity
@@ -13,6 +12,8 @@ import android.widget.Toast
 import android.content.pm.PackageManager
 import org.json.JSONObject
 import rikka.shizuku.Shizuku
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
 class MainActivity : Activity() {
 
@@ -155,6 +156,34 @@ class MainActivity : Activity() {
                     put("success", false)
                     put("error", e.message ?: "Eksekusi gagal")
                 }.toString()
+            }
+        }
+
+        // === FUNGSI BARU UNTUK DEVICE INFO ===
+        @JavascriptInterface
+        fun getDeviceInfo(): String {
+            return try {
+                val script = """
+                    echo "DEVICE   : ${'$'}(getprop ro.product.model)"
+                    echo "BRAND    : ${'$'}(getprop ro.product.brand)"
+                    echo "ANDROID  : ${'$'}(getprop ro.build.version.release)"
+                    echo "SDK      : ${'$'}(getprop ro.build.version.sdk)"
+                    echo "KERNEL   : ${'$'}(uname -r)"
+                    echo "CHIPSET  : ${'$'}(getprop ro.soc.model)"
+                    echo "CPU CORE : ${'$'}(nproc)"
+                    echo "GPU      : ${'$'}(dumpsys SurfaceFlinger | grep GLES: | cut -d, -f2)"
+                """.trimIndent()
+
+                val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", script))
+                val reader = BufferedReader(InputStreamReader(process.inputStream))
+                val output = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    output.append(line).append("\n")
+                }
+                output.toString().trim()
+            } catch (e: Exception) {
+                "Gagal membaca data: ${e.message}"
             }
         }
     }
