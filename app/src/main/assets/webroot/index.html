@@ -194,6 +194,38 @@ button {
 }
 
 /* ===============================
+   DEVICE INFO CARD
+=============================== */
+
+.device-info-card {
+    background: rgba(25,20,45,.65);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 17px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 18px #0002;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.device-info-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #8b80b6;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+#device-output {
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--purple);
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+/* ===============================
    APPLICATIONS
 =============================== */
 
@@ -646,6 +678,12 @@ button {
             of anime. Designed with elegance, darkness,
             and futuristic aesthetics.
         </div>
+    </div>
+
+    <!-- === KOTAK DEVICE INFO DITAMBAHKAN DI SINI === -->
+    <div class="device-info-card">
+        <div class="device-info-title">DEVICE INFORMATION</div>
+        <pre id="device-output">Memuat data perangkat...</pre>
     </div>
 
     <div class="home-line"></div>
@@ -1186,6 +1224,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("appsPage").style.display = "none";
 
     currentPage = "home";
+
+    // === MEMUAT DATA DEVICE INFO ===
+    try {
+        if (typeof lvnder !== 'undefined' && lvnder.getDeviceInfo) {
+            const info = lvnder.getDeviceInfo();
+            document.getElementById("device-output").textContent = info;
+        } else {
+            document.getElementById("device-output").textContent = "Bridge 'lvnder' tidak ditemukan.";
+        }
+    } catch (e) {
+        document.getElementById("device-output").textContent = "Gagal memuat data: " + e.message;
+    }
 
 });
 
