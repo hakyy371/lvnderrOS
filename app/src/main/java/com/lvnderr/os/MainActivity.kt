@@ -19,7 +19,6 @@ class MainActivity : Activity() {
 
     private lateinit var webView: WebView
     private var remoteService: ILvnderService? = null
-
     private val requestCode = 1001
 
     private val serviceArgs by lazy {
@@ -33,84 +32,63 @@ class MainActivity : Activity() {
     }
 
     private val serviceConnection = object : ServiceConnection {
-        override fun onServiceConnected(
-            name: ComponentName?,
-            service: IBinder?
-        ) {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             remoteService = ILvnderService.Stub.asInterface(service)
-            Toast.makeText(
-                this@MainActivity,
-                "LVNDERR Shizuku terhubung",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this@MainActivity, "LVNDERR Shizuku terhubung", Toast.LENGTH_SHORT).show()
+            
+            // Beritahu WebView bahwa Shizuku sudah jalan
+            runOnUiThread {
+                webView.evaluateJavascript("updateShizukuStatus(true)", null)
+            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             remoteService = null
+            // Beritahu WebView bahwa Shizuku terputus
+            runOnUiThread {
+                webView.evaluateJavascript("updateShizukuStatus(false)", null)
+            }
         }
     }
 
-    private val permissionListener =
-        Shizuku.OnRequestPermissionResultListener {
-            code, grantResult ->
-
-            if (code == requestCode &&
-                grantResult == PackageManager.PERMISSION_GRANTED
-            ) {
-                bindLvnderService()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Izin Shizuku ditolak",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+    private val permissionListener = Shizuku.OnRequestPermissionResultListener { code, grantResult ->
+        if (code == requestCode && grantResult == PackageManager.PERMISSION_GRANTED) {
+            bindLvnderService()
+        } else {
+            Toast.makeText(this, "Izin Shizuku ditolak", Toast.LENGTH_LONG).show()
         }
+    }
 
-    private val binderListener =
-        Shizuku.OnBinderReceivedListener {
-            checkShizukuPermission()
+    private val binderListener = Shizuku.OnBinderReceivedListener {
+        checkShizukuPermission()
+        // Jika Shizuku baru dibuka, cek status dan update UI
+        runOnUiThread {
+            webView.evaluateJavascript("updateShizukuStatus(${remoteService != null})", null)
         }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         webView = WebView(this)
-
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = true
-
         webView.webViewClient = WebViewClient()
-
-        webView.addJavascriptInterface(
-            LvnderBridge(),
-            "lvnder"
-        )
+        webView.addJavascriptInterface(LvnderBridge(), "lvnder")
 
         setContentView(webView)
+        webView.loadUrl("file:///android_asset/webroot/index.html")
 
-        webView.loadUrl(
-            "file:///android_asset/webroot/index.html"
-        )
-
-        Shizuku.addRequestPermissionResultListener(
-            permissionListener
-        )
-
-        Shizuku.addBinderReceivedListenerSticky(
-            binderListener
-        )
+        Shizuku.addRequestPermissionResultListener(permissionListener)
+        Shizuku.addBinderReceivedListenerSticky(binderListener)
 
         checkShizukuPermission()
     }
 
     private fun checkShizukuPermission() {
         if (!Shizuku.pingBinder()) return
-
-        if (Shizuku.checkSelfPermission() ==
-            PackageManager.PERMISSION_GRANTED
-        ) {
+        if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
             bindLvnderService()
         } else {
             Shizuku.requestPermission(requestCode)
@@ -119,18 +97,10 @@ class MainActivity : Activity() {
 
     private fun bindLvnderService() {
         if (!Shizuku.pingBinder()) return
-
         try {
-            Shizuku.bindUserService(
-                serviceArgs,
-                serviceConnection
-            )
+            Shizuku.bindUserService(serviceArgs, serviceConnection)
         } catch (e: Exception) {
-            Toast.makeText(
-                this,
-                "Gagal menghubungkan Shizuku: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Gagal menghubungkan Shizuku: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -139,18 +109,12 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun exec(binary: String, state: String): String {
             return try {
-                val service = remoteService
-                    ?: throw IllegalStateException(
-                        "Shizuku belum terhubung"
-                    )
-
+                val service = remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
                 val output = service.exec(binary, state)
-
                 JSONObject().apply {
                     put("success", true)
                     put("output", output)
                 }.toString()
-
             } catch (e: Exception) {
                 JSONObject().apply {
                     put("success", false)
@@ -159,19 +123,24 @@ class MainActivity : Activity() {
             }
         }
 
-        // === FUNGSI BARU UNTUK DEVICE INFO ===
+        // Fungsi untuk mengecek apakah Shizuku sedang berjalan & terhubung
+        @JavascriptInterface
+        fun isShizukuRunning(): Boolean {
+            return Shizuku.pingBinder() && remoteService != null
+        }
+
+        // Fungsi Device Info (Chipset diperbaiki, CPU/GPU dihapus)
         @JavascriptInterface
         fun getDeviceInfo(): String {
             return try {
+                // Menggunakan ro.hardware, ro.board.platform, atau ro.soc.model untuk Chipset
                 val script = """
                     echo "DEVICE   : ${'$'}(getprop ro.product.model)"
                     echo "BRAND    : ${'$'}(getprop ro.product.brand)"
                     echo "ANDROID  : ${'$'}(getprop ro.build.version.release)"
                     echo "SDK      : ${'$'}(getprop ro.build.version.sdk)"
                     echo "KERNEL   : ${'$'}(uname -r)"
-                    echo "CHIPSET  : ${'$'}(getprop ro.soc.model)"
-                    echo "CPU CORE : ${'$'}(nproc)"
-                    echo "GPU      : ${'$'}(dumpsys SurfaceFlinger | grep GLES: | cut -d, -f2)"
+                    echo "CHIPSET  : ${'$'}(getprop ro.soc.model || getprop ro.board.platform || getprop ro.hardware)"
                 """.trimIndent()
 
                 val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", script))
@@ -189,23 +158,13 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
-        Shizuku.removeRequestPermissionResultListener(
-            permissionListener
-        )
-
-        Shizuku.removeBinderReceivedListener(
-            binderListener
-        )
+        Shizuku.removeRequestPermissionResultListener(permissionListener)
+        Shizuku.removeBinderReceivedListener(binderListener)
 
         if (Shizuku.pingBinder()) {
             try {
-                Shizuku.unbindUserService(
-                    serviceArgs,
-                    serviceConnection,
-                    false
-                )
-            } catch (_: Exception) {
-            }
+                Shizuku.unbindUserService(serviceArgs, serviceConnection, false)
+            } catch (_: Exception) {}
         }
 
         webView.destroy()
