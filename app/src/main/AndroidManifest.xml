@@ -5,11 +5,10 @@
 
     <uses-sdk tools:overrideLibrary="rikka.shizuku.api" />
 
-    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
-
-    <!-- Foreground Service -->
+    
+    <!-- IZIN UNTUK FOREGROUND SERVICE (PRELOADER) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
@@ -20,8 +19,7 @@
         android:icon="@drawable/gojobattle"
         android:roundIcon="@drawable/gojobattle"
         android:theme="@android:style/Theme.Material.NoActionBar">
-
-        <!-- Main Activity -->
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -33,30 +31,12 @@
 
         </activity>
 
-        <!-- App Preloader -->
-        <service
-            android:name=".PreloadService"
-            android:foregroundServiceType="dataSync"
+        <!-- DAFTARKAN PRELOAD SERVICE DI SINI -->
+        <service 
+            android:name=".PreloadService" 
+            android:foregroundServiceType="dataSync" 
             android:exported="false" />
 
-        <!-- RenderThread Service -->
-        <service
-            android:name=".ThreadService"
-            android:exported="false" />
-
-        <!-- Game Detection Receiver -->
-        <receiver
-            android:name=".GameDetectedReceiver"
-            android:enabled="true"
-            android:exported="true">
-
-            <intent-filter>
-                <action android:name="com.lvnderr.os.GAME_DETECTED" />
-            </intent-filter>
-
-        </receiver>
-
-        <!-- Shizuku Provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
