@@ -156,9 +156,9 @@ class MainActivity : Activity() {
 
     inner class LvnderBridge {
 
-        // ==========================================
-        // EKSEKUSI BINARY DAN SCRIPT
-        // ==========================================
+        // =====================================
+        // BINARY DAN SCRIPT
+        // =====================================
 
         @JavascriptInterface
         fun exec(binary: String, state: String): String {
@@ -178,50 +178,59 @@ class MainActivity : Activity() {
             } catch (e: Exception) {
                 JSONObject().apply {
                     put("success", false)
-                    put(
-                        "error",
-                        e.message ?: "Eksekusi gagal"
-                    )
+                    put("error", e.message ?: "Eksekusi gagal")
                 }.toString()
             }
         }
 
-        // ==========================================
-        // PRELOADER SERVICE
-        // ==========================================
+        // =====================================
+        // PRELOADER
+        // =====================================
 
         @JavascriptInterface
-        fun togglePreloadService(state: String) {
-            val intent = Intent(
-                this@MainActivity,
-                PreloadService::class.java
-            )
+        fun togglePreloadService(state: String): String {
+            return try {
+                require(state == "aktif" || state == "nonaktif")
 
-            if (state == "aktif") {
-                if (
-                    android.os.Build.VERSION.SDK_INT >=
-                    android.os.Build.VERSION_CODES.O
-                ) {
-                    startForegroundService(intent)
+                val intent = Intent(
+                    this@MainActivity,
+                    PreloadService::class.java
+                )
+
+                if (state == "aktif") {
+                    if (
+                        android.os.Build.VERSION.SDK_INT >=
+                        android.os.Build.VERSION_CODES.O
+                    ) {
+                        startForegroundService(intent)
+                    } else {
+                        startService(intent)
+                    }
                 } else {
-                    startService(intent)
+                    stopService(intent)
                 }
-            } else {
-                stopService(intent)
+
+                JSONObject().apply {
+                    put("success", true)
+                    put("output", "Preloader $state")
+                }.toString()
+
+            } catch (e: Exception) {
+                JSONObject().apply {
+                    put("success", false)
+                    put("error", e.message ?: "Preloader gagal")
+                }.toString()
             }
         }
 
-        // ==========================================
-        // LVNDTHREAD RENDERTHREAD BOOSTER
-        // ==========================================
+        // =====================================
+        // RENDERTHREAD BOOSTER
+        // =====================================
 
         @JavascriptInterface
         fun toggleRenderThreadService(state: String): String {
             return try {
-                require(
-                    state == "aktif" ||
-                    state == "nonaktif"
-                ) {
+                require(state == "aktif" || state == "nonaktif") {
                     "Status tidak valid"
                 }
 
@@ -243,17 +252,14 @@ class MainActivity : Activity() {
             } catch (e: Exception) {
                 JSONObject().apply {
                     put("success", false)
-                    put(
-                        "error",
-                        e.message ?: "Gagal mengubah lvndThread"
-                    )
+                    put("error", e.message ?: "RenderThread gagal")
                 }.toString()
             }
         }
 
-        // ==========================================
-        // STATUS SHIZUKU
-        // ==========================================
+        // =====================================
+        // SHIZUKU STATUS
+        // =====================================
 
         @JavascriptInterface
         fun isShizukuRunning(): Boolean {
@@ -261,9 +267,9 @@ class MainActivity : Activity() {
                 MainActivity.remoteService != null
         }
 
-        // ==========================================
+        // =====================================
         // DEVICE INFORMATION
-        // ==========================================
+        // =====================================
 
         @JavascriptInterface
         fun getDeviceInfo(): String {
