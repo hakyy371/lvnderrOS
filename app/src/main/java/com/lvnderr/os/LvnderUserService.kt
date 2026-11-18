@@ -27,26 +27,31 @@ class LvnderUserService(
         "lvndThread.sh"
     )
 
-    private val directory =
-        File("/data/local/tmp/lvnderr")
+    private val directory = File("/data/local/tmp/lvnderr")
 
-    private fun runShell(command: String): String {
-        val process = ProcessBuilder(
-            "/system/bin/sh",
-            "-c",
-            command
-        )
-            .redirectErrorStream(true)
-            .start()
-
-        val output = process.inputStream.bufferedReader().use {
-            it.readText()
+    /**
+     * Jalankan perintah shell TANPA interpolasi variabel Kotlin.
+     * Semua path/argumen dikirim lewat parameter posisi ($1, $2, ...).
+     */
+    private fun runShell(script: String, vararg args: String): String {
+        val command = buildString {
+            append(script)
+            // sh -c '<script>' sh arg1 arg2 ...
+            // argumen pertama setelah script adalah $0, jadi kita sisipkan "sh"
         }
 
+        val pb = ProcessBuilder(
+            listOf("/system/bin/sh", "-c", command, "sh") + args
+        )
+        pb.redirectErrorStream(true)
+
+        val process = pb.start()
+
+        val output = process.inputStream.bufferedReader().use { it.readText() }
         val exitCode = process.waitFor()
 
         check(exitCode == 0) {
-            "Shell command gagal: $output"
+            "Shell command gagal (exit $exitCode): $output"
         }
 
         return output.trim()
@@ -88,28 +93,29 @@ class LvnderUserService(
 
             return if (state == "aktif") {
 
+                // Argumen: $1 = scriptPath, $2 = pidPath
                 runShell(
                     """
-                    if [ -f '$pidPath' ] &&
-                       kill -0 "$(cat '$pidPath')" 2>/dev/null; then
+                    if [ -f "${'$'}2" ] && kill -0 "$(cat "${'$'}2")" 2>/dev/null; then
                         echo "lvndThread sudah berjalan"
                         exit 0
                     fi
 
-                    /system/bin/sh '$scriptPath' >/dev/null 2>&1 &
-
-                    echo ${'$'}! > '$pidPath'
+                    /system/bin/sh "${'$'}1" >/dev/null 2>&1 &
+                    echo ${'$'}! > "${'$'}2"
                     echo "lvndThread berhasil diaktifkan"
-                    """.trimIndent()
+                    """.trimIndent(),
+                    scriptPath,
+                    pidPath
                 )
 
             } else {
 
+                // Argumen: $1 = pidPath
                 runShell(
                     """
-                    if [ -f '$pidPath' ]; then
-                        pid=${'$'}(cat '$pidPath')
-
+                    if [ -f "${'$'}1" ]; then
+                        pid=$(cat "${'$'}1")
                         case "${'$'}pid" in
                             ''|*[!0-9]*)
                                 echo "PID tidak valid"
@@ -118,12 +124,11 @@ class LvnderUserService(
                                 kill "${'$'}pid" 2>/dev/null || true
                                 ;;
                         esac
-
-                        rm -f '$pidPath'
+                        rm -f "${'$'}1"
                     fi
-
                     echo "lvndThread berhasil dinonaktifkan"
-                    """.trimIndent()
+                    """.trimIndent(),
+                    pidPath
                 )
             }
         }
@@ -148,43 +153,30 @@ class LvnderUserService(
                 .redirectErrorStream(true)
                 .start()
 
-            val output = process.inputStream.bufferedReader().use {
-                it.readText()
-            }
-
+            val output = process.inputStream.bufferedReader().use { it.readText() }
             val exitCode = process.waitFor()
 
             check(exitCode == 0) {
                 "Preloader gagal. Exit code: $exitCode\n$output"
             }
 
-            return output.ifBlank {
-                "Preloader berhasil dijalankan"
-            }
+            return output.ifBlank { "Preloader berhasil dijalankan" }
         }
 
         // === TWEAK BIASA ===
 
-        val process = ProcessBuilder(
-            file.absolutePath,
-            state
-        )
+        val process = ProcessBuilder(file.absolutePath, state)
             .redirectErrorStream(true)
             .start()
 
-        val output = process.inputStream.bufferedReader().use {
-            it.readText()
-        }
-
+        val output = process.inputStream.bufferedReader().use { it.readText() }
         val exitCode = process.waitFor()
 
         check(exitCode == 0) {
             "Binary gagal. Exit code: $exitCode\n$output"
         }
 
-        return output.ifBlank {
-            "Berhasil dijalankan"
-        }
+        return output.ifBlank { "Berhasil dijalankan" }
     }
 
     override fun destroy() {
