@@ -255,13 +255,11 @@ const gameTweaks = [
 ];
 const mlTweaks = [];
 const systemTweaks = [
-    // === FITUR PRELOADER DITAMBAHKAN DI SINI ===
     { 
         id: "lvnderrpreload", 
         name: "App Preloader (Illuminati)", 
         desc: "Memuat data game ke RAM agar loading instan dan FPS stabil." 
     },
-    // ============================================
     { id: "lvnderthermal", name: "Thermal Service", desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu." },
     { id: "lvnderrPERF", name: "Performance Boost", desc: "Pengaturan profil performa perangkat." },
     { id: "lvnderr60HZ", name: "Refresh Rate 60Hz", desc: "Memilih refresh rate 60Hz." },
@@ -343,7 +341,7 @@ function renderFeatures(features, target) {
 /* BINARY BRIDGE */
 const allowedBinaries = new Set([
     "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp",
-    "lvnderrpreload" // <-- TAMBAHKAN DI SINI AGAR TIDAK DIBLOKIR
+    "lvnderrpreload"
 ]);
 
 function updateLog(message, color = "#bb86fc") {
@@ -375,6 +373,16 @@ async function eksekusiTweak(input) {
     const state = enabled ? "aktif" : "nonaktif";
     updateLog("Menjalankan " + binary + " " + state + "...");
     try {
+        // === LOGIKA KHUSUS PRELOADER (FOREGROUND SERVICE) ===
+        if (binary === "lvnderrpreload") {
+            window.lvnder.togglePreloadService(state);
+            if (card) card.classList.toggle("feature-enabled", enabled);
+            updateLog(enabled ? "Preloader Aktif (Auto-Refresh 5s)" : "Preloader Dimatikan", "#00e676");
+            input.disabled = false;
+            return; // Keluar dari fungsi
+        }
+
+        // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
         const raw = await window.lvnder.exec(binary, state);
         const result = typeof raw === "string" ? JSON.parse(raw) : raw;
         if (!result || result.success !== true) throw new Error(result?.error || "Eksekusi binary gagal.");
