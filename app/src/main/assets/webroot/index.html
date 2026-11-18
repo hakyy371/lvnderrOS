@@ -255,6 +255,13 @@ const gameTweaks = [
 ];
 const mlTweaks = [];
 const systemTweaks = [
+    // === FITUR PRELOADER DITAMBAHKAN DI SINI ===
+    { 
+        id: "lvnderrpreload", 
+        name: "App Preloader (Illuminati)", 
+        desc: "Memuat data game ke RAM agar loading instan dan FPS stabil." 
+    },
+    // ============================================
     { id: "lvnderthermal", name: "Thermal Service", desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu." },
     { id: "lvnderrPERF", name: "Performance Boost", desc: "Pengaturan profil performa perangkat." },
     { id: "lvnderr60HZ", name: "Refresh Rate 60Hz", desc: "Memilih refresh rate 60Hz." },
@@ -335,7 +342,8 @@ function renderFeatures(features, target) {
 
 /* BINARY BRIDGE */
 const allowedBinaries = new Set([
-    "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp"
+    "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp",
+    "lvnderrpreload" // <-- TAMBAHKAN DI SINI AGAR TIDAK DIBLOKIR
 ]);
 
 function updateLog(message, color = "#bb86fc") {
