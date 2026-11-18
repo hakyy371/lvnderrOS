@@ -23,42 +23,10 @@ class LvnderUserService(
         "lvnderrWindows",
         "lvnderSF",
         "lvnderthermal",
-        "lvnderrpreload",
-        "lvndThread.sh"
+        "lvnderrpreload" // <-- DIIZINKAN
     )
 
-    private val directory = File("/data/local/tmp/lvnderr")
-
-    /**
-     * Jalankan perintah shell TANPA interpolasi variabel Kotlin.
-     * Semua path/argumen dikirim lewat parameter posisi ($1, $2, ...).
-     */
-    private fun runShell(script: String, vararg args: String): String {
-        val command = buildString {
-            append(script)
-            // sh -c '<script>' sh arg1 arg2 ...
-            // argumen pertama setelah script adalah $0, jadi kita sisipkan "sh"
-        }
-
-        val pb = ProcessBuilder(
-            listOf("/system/bin/sh", "-c", command, "sh") + args
-        )
-        pb.redirectErrorStream(true)
-
-        val process = pb.start()
-
-        val output = process.inputStream.bufferedReader().use { it.readText() }
-        val exitCode = process.waitFor()
-
-        check(exitCode == 0) {
-            "Shell command gagal (exit $exitCode): $output"
-        }
-
-        return output.trim()
-    }
-
     override fun exec(binary: String, state: String): String {
-
         require(binary in allowed) {
             "Binary tidak terdaftar: $binary"
         }
@@ -66,6 +34,8 @@ class LvnderUserService(
         require(state == "aktif" || state == "nonaktif") {
             "Status tidak valid"
         }
+
+        val directory = File("/data/local/tmp/lvnderr")
 
         check(directory.exists() || directory.mkdirs()) {
             "Gagal membuat direktori binary"
@@ -83,93 +53,35 @@ class LvnderUserService(
             "Tidak bisa memberikan izin eksekusi"
         }
 
-        // === LVNDTHREAD SERVICE ===
-
-        if (binary == "lvndThread.sh") {
-
-            val pidFile = File(directory, "lvndThread.pid")
-            val scriptPath = file.absolutePath
-            val pidPath = pidFile.absolutePath
-
-            return if (state == "aktif") {
-
-                // Argumen: $1 = scriptPath, $2 = pidPath
-                runShell(
-                    """
-                    if [ -f "${'$'}2" ] && kill -0 "$(cat "${'$'}2")" 2>/dev/null; then
-                        echo "lvndThread sudah berjalan"
-                        exit 0
-                    fi
-
-                    /system/bin/sh "${'$'}1" >/dev/null 2>&1 &
-                    echo ${'$'}! > "${'$'}2"
-                    echo "lvndThread berhasil diaktifkan"
-                    """.trimIndent(),
-                    scriptPath,
-                    pidPath
-                )
-
-            } else {
-
-                // Argumen: $1 = pidPath
-                runShell(
-                    """
-                    if [ -f "${'$'}1" ]; then
-                        pid=$(cat "${'$'}1")
-                        case "${'$'}pid" in
-                            ''|*[!0-9]*)
-                                echo "PID tidak valid"
-                                ;;
-                            *)
-                                kill "${'$'}pid" 2>/dev/null || true
-                                ;;
-                        esac
-                        rm -f "${'$'}1"
-                    fi
-                    echo "lvndThread berhasil dinonaktifkan"
-                    """.trimIndent(),
-                    pidPath
-                )
-            }
-        }
-
-        // === ILLUMINATI PRELOADER ===
-
+        // === LOGIKA PENERJEMAH ILLUMINATI ===
+        val actualArgs: Array<String>
         if (binary == "lvnderrpreload") {
-
-            if (state == "nonaktif") {
+            if (state == "aktif") {
+                // Perintah asli Illuminati (tanpa mlock, karena Shizuku bukan Root)
+                actualArgs = arrayOf(
+                    file.absolutePath,
+                    "-a", "com.mobile.legends",
+                    "-a", "com.dts.freefiremax",
+                    "-t", "4",
+                    "-v"
+                )
+            } else {
+                // Illuminati tidak butuh 'nonaktif', kita cukup kembalikan pesan sukses
                 return "Preload selesai (status: nonaktif)."
             }
-
-            val actualArgs = arrayOf(
-                file.absolutePath,
-                "-a", "com.mobile.legends",
-                "-a", "com.dts.freefiremax",
-                "-t", "4",
-                "-v"
-            )
-
-            val process = ProcessBuilder(*actualArgs)
-                .redirectErrorStream(true)
-                .start()
-
-            val output = process.inputStream.bufferedReader().use { it.readText() }
-            val exitCode = process.waitFor()
-
-            check(exitCode == 0) {
-                "Preloader gagal. Exit code: $exitCode\n$output"
-            }
-
-            return output.ifBlank { "Preloader berhasil dijalankan" }
+        } else {
+            // Tweak biasa (60HZ, dll)
+            actualArgs = arrayOf(file.absolutePath, state)
         }
 
-        // === TWEAK BIASA ===
-
-        val process = ProcessBuilder(file.absolutePath, state)
+        val process = ProcessBuilder(*actualArgs)
             .redirectErrorStream(true)
             .start()
 
-        val output = process.inputStream.bufferedReader().use { it.readText() }
+        val output = process.inputStream.bufferedReader().use {
+            it.readText()
+        }
+
         val exitCode = process.waitFor()
 
         check(exitCode == 0) {
