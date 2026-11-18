@@ -29,6 +29,7 @@ body {
 button { font-family: inherit; }
 .container { width: 100%; max-width: 480px; margin: auto; }
 
+/* PAGE TRANSITION */
 .page { display: none; opacity: 0; }
 .page.active { display: block; animation: pageEnter .55s cubic-bezier(.22,1,.36,1) both; }
 @keyframes pageEnter { from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
@@ -50,13 +51,13 @@ button { font-family: inherit; }
 .home-footer-title { color: #b98aff; font-size: 10px; letter-spacing: 4px; }
 .home-footer-text { color: #665675; font-size: 9px; margin-top: 8px; }
 
-/* DEVICE INFO */
+/* DEVICE INFO CARD & SHIZUKU STATUS */
 .device-info-card { background: rgba(25,20,45,.65); border: 1px solid var(--border); border-radius: 17px; padding: 17px; margin-bottom: 20px; box-shadow: 0 5px 18px #0002; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .device-info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .device-info-title { font-size: 11px; text-transform: uppercase; color: #8b80b6; font-weight: 700; }
 .shizuku-status { font-size: 9px; font-weight: bold; padding: 4px 8px; border-radius: 10px; letter-spacing: 1px; }
-.shizuku-status.running { background: rgba(0,230,118,.15); color: #00e676; border: 1px solid rgba(0,230,118,.3); }
-.shizuku-status.not-running { background: rgba(255,82,82,.15); color: #ff5252; border: 1px solid rgba(255,82,82,.3); }
+.shizuku-status.running { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid rgba(0, 230, 118, 0.3); }
+.shizuku-status.not-running { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.3); }
 #device-output { font-family: monospace; font-size: 11px; line-height: 1.7; color: var(--purple); white-space: pre-wrap; margin: 0; }
 
 /* APPLICATIONS */
@@ -95,7 +96,7 @@ button { font-family: inherit; }
 .feature-info h3 { font-size: 14px; color: white; margin: 0; }
 .feature-info p { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 6px 0 0; }
 
-/* TOGGLE */
+/* SMOOTH TOGGLE */
 .switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; inset: 0; cursor: pointer; border-radius: 30px; background: rgba(255,255,255,.12); transition: background .4s ease, box-shadow .4s ease; }
@@ -109,7 +110,7 @@ button { font-family: inherit; }
 .log-title { font-size: 11px; text-transform: uppercase; color: #8b80b6; font-weight: 700; margin-bottom: 9px; }
 #console-log { background: rgba(8,6,17,.85); padding: 15px; border-radius: 12px; font-family: monospace; font-size: 11px; line-height: 1.7; color: var(--purple); border: 1px solid var(--border); overflow-wrap: anywhere; transition: color .3s ease, border-color .3s ease; }
 
-/* NAVIGATION */
+/* FLOATING NAVIGATION */
 .bottom-nav { position: fixed; z-index: 99; bottom: calc(18px + env(safe-area-inset-bottom)); left: 18px; right: 18px; max-width: 440px; margin: auto; border: 1px solid rgba(187,134,252,.22); border-radius: 22px; padding: 10px 20px; background: rgba(15,9,29,.88); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); box-shadow: 0 10px 35px #0007; display: flex; justify-content: center; align-items: center; gap: 55px; }
 .nav-btn { position: relative; border: 0; background: transparent; color: #80749f; cursor: pointer; font-size: 11px; font-weight: 600; min-width: 65px; padding: 7px 10px; border-radius: 14px; transition: .35s cubic-bezier(.22,1,.36,1); }
 .nav-btn span { display: block; font-size: 23px; margin-bottom: 4px; transition: transform .35s ease, filter .35s ease; }
@@ -117,21 +118,18 @@ button { font-family: inherit; }
 .nav-btn.active span { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 8px #bb86fc); }
 .nav-btn:active { transform: scale(.92); }
 
+/* RESPONSIVE */
 @media(max-width:360px) {
-    .home-brand { font-size: 22px; }
-    .home-intro h1 { font-size: 24px; }
-    .app-item img { width: 65px; height: 65px; }
-    .bottom-nav { gap: 35px; left: 14px; right: 14px; padding: 9px 15px; }
+    .home-brand { font-size: 22px; } .home-intro h1 { font-size: 24px; } .app-item img { width: 65px; height: 65px; } .bottom-nav { gap: 35px; left: 14px; right: 14px; padding: 9px 15px; }
 }
-@media(prefers-reduced-motion:reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-}
+@media(prefers-reduced-motion:reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 
 <body>
 <div class="container">
 
+<!-- ================= HOME ================= -->
 <section id="homePage" class="page active">
     <div class="home-top">
         <div>
@@ -156,9 +154,11 @@ button { font-family: inherit; }
         </div>
     </div>
 
+    <!-- KOTAK DEVICE INFO -->
     <div class="device-info-card">
         <div class="device-info-header">
             <div class="device-info-title">DEVICE INFORMATION</div>
+            <!-- INDIKATOR STATUS SHIZUKU -->
             <div id="shizuku-status" class="shizuku-status not-running">SHIZUKU: NOT RUNNING</div>
         </div>
         <pre id="device-output">Memuat data perangkat...</pre>
@@ -171,12 +171,12 @@ button { font-family: inherit; }
     </div>
 </section>
 
+<!-- ================= APPLICATIONS ================= -->
 <section id="appsPage" class="page">
     <div class="app-heading">
         <h2>Applications</h2>
         <p>Select your gaming platform</p>
     </div>
-
     <div class="app-grid" id="appGrid">
         <button class="app-item" onclick="openGame('ff')"><img src="icons/ffmax.png" alt="Free Fire MAX"><span>Free Fire MAX</span></button>
         <button class="app-item" onclick="openGame('pubg')"><img src="icons/pubg.png" alt="PUBG Mobile"><span>PUBG Mobile</span></button>
@@ -186,7 +186,6 @@ button { font-family: inherit; }
 
     <div class="game-detail" id="gameDetail">
         <button class="back-btn" onclick="closeGame()">← Back to Applications</button>
-
         <div class="game-title">
             <img id="selectedGameIcon" src="" alt="">
             <div>
@@ -194,10 +193,8 @@ button { font-family: inherit; }
                 <p id="selectedGameDescription">Gaming Optimization Center</p>
             </div>
         </div>
-
         <div id="gameContent"></div>
         <div id="systemContent"></div>
-
         <div class="log-container">
             <div class="log-title">Engine Output Terminal</div>
             <div id="console-log">&gt; lvnderrOS binary engine terhubung. Siap digunakan!</div>
@@ -206,6 +203,7 @@ button { font-family: inherit; }
 </section>
 </div>
 
+<!-- ================= BOTTOM NAV ================= -->
 <nav class="bottom-nav">
     <button class="nav-btn active" id="homeNav" onclick="showPage('home')"><span>⌂</span>HOME</button>
     <button class="nav-btn" id="appsNav" onclick="showPage('apps')"><span>▦</span>APLIKASI</button>
@@ -215,24 +213,17 @@ button { font-family: inherit; }
 /* NAVIGATION */
 let currentPage = "home";
 let isNavigating = false;
-
 function showPage(page) {
     if (isNavigating || currentPage === page) return;
-
     const home = document.getElementById("homePage");
     const apps = document.getElementById("appsPage");
     const target = page === "apps" ? apps : home;
     const current = page === "apps" ? home : apps;
-
     if (!target || !current) return;
-
     isNavigating = true;
-
     document.getElementById("homeNav").classList.toggle("active", page === "home");
     document.getElementById("appsNav").classList.toggle("active", page === "apps");
-
     current.classList.remove("active");
-
     setTimeout(() => {
         current.style.display = "none";
         target.style.display = "block";
@@ -241,35 +232,16 @@ function showPage(page) {
         target.classList.add("active");
         currentPage = page;
         window.scrollTo({top: 0, behavior: "smooth"});
-
-        setTimeout(() => {
-            isNavigating = false;
-        }, 550);
+        setTimeout(() => { isNavigating = false; }, 550);
     }, 100);
 }
 
 /* GAME DATA */
 const gameData = {
-    ff: {
-        name: "Free Fire MAX",
-        icon: "icons/ffmax.png",
-        description: "Gaming Optimization Center"
-    },
-    pubg: {
-        name: "PUBG Mobile",
-        icon: "icons/pubg.png",
-        description: "Gaming Optimization Center"
-    },
-    ml: {
-        name: "Mobile Legends",
-        icon: "icons/mlbb.png",
-        description: "Gaming Optimization Center"
-    },
-    system: {
-        name: "System Performance",
-        icon: "icons/system.png",
-        description: "Android System Optimization"
-    }
+    ff: { name: "Free Fire MAX", icon: "icons/ffmax.png", description: "Gaming Optimization Center" },
+    pubg: { name: "PUBG Mobile", icon: "icons/pubg.png", description: "Gaming Optimization Center" },
+    ml: { name: "Mobile Legends", icon: "icons/mlbb.png", description: "Gaming Optimization Center" },
+    system: { name: "System Performance", icon: "icons/system.png", description: "Android System Optimization" }
 };
 
 /* FEATURE DATA */
@@ -281,126 +253,65 @@ const gameTweaks = [
     { id: "lvnderMLBB", name: "Game Compilation", desc: "Pengaturan kompilasi aplikasi game." },
     { id: "lvnderapp", name: "Game Environment Stabilizer", desc: "Membantu menjaga kestabilan lingkungan game." }
 ];
-
 const mlTweaks = [];
-
 const systemTweaks = [
-    {
-        id: "lvndThread.sh",
-        name: "lvndThread Booster",
-        desc: "Automatic Game Detection & RenderThread Priority untuk MLBB, PUBG Mobile, dan Free Fire MAX."
+    { 
+        id: "lvnderrpreload", 
+        name: "App Preloader (Illuminati)", 
+        desc: "Memuat data game ke RAM agar loading instan dan FPS stabil." 
     },
-    {
-        id: "lvnderrpreload",
-        name: "App Preloader (Illuminati)",
-        desc: "Memuat data game ke RAM agar loading instan dan FPS stabil."
-    },
-    {
-        id: "lvnderthermal",
-        name: "Thermal Service",
-        desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu."
-    },
-    {
-        id: "lvnderrPERF",
-        name: "Performance Boost",
-        desc: "Pengaturan profil performa perangkat."
-    },
-    {
-        id: "lvnderr60HZ",
-        name: "Refresh Rate 60Hz",
-        desc: "Memilih refresh rate 60Hz."
-    },
-    {
-        id: "lvnderr90HZ",
-        name: "Refresh Rate 90Hz",
-        desc: "Memilih refresh rate 90Hz."
-    },
-    {
-        id: "lvnderr120HZ",
-        name: "Refresh Rate 120Hz",
-        desc: "Memilih refresh rate 120Hz jika didukung."
-    },
-    {
-        id: "lvnderrdevice",
-        name: "Device Identifier",
-        desc: "Identifikasi profil perangkat."
-    },
-    {
-        id: "lvnderrWindows",
-        name: "Windows UI Optimizer",
-        desc: "Pengaturan animasi antarmuka Android."
-    },
-    {
-        id: "lvnderrSqlite",
-        name: "SQLite Optimizer",
-        desc: "Pengaturan database aplikasi."
-    },
-    {
-        id: "lvnderrCPU",
-        name: "CPU Performance",
-        desc: "Pengaturan profil CPU yang didukung perangkat."
-    }
+    { id: "lvnderthermal", name: "Thermal Service", desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu." },
+    { id: "lvnderrPERF", name: "Performance Boost", desc: "Pengaturan profil performa perangkat." },
+    { id: "lvnderr60HZ", name: "Refresh Rate 60Hz", desc: "Memilih refresh rate 60Hz." },
+    { id: "lvnderr90HZ", name: "Refresh Rate 90Hz", desc: "Memilih refresh rate 90Hz." },
+    { id: "lvnderr120HZ", name: "Refresh Rate 120Hz", desc: "Memilih refresh rate 120Hz jika didukung." },
+    { id: "lvnderrdevice", name: "Device Identifier", desc: "Identifikasi profil perangkat." },
+    { id: "lvnderrWindows", name: "Windows UI Optimizer", desc: "Pengaturan animasi antarmuka Android." },
+    { id: "lvnderrSqlite", name: "SQLite Optimizer", desc: "Pengaturan database aplikasi." },
+    { id: "lvnderrCPU", name: "CPU Performance", desc: "Pengaturan profil CPU yang didukung perangkat." }
 ];
 
 /* OPEN & CLOSE GAME */
 function openGame(game) {
     const data = gameData[game];
     if (!data) return;
-
     const grid = document.getElementById("appGrid");
     const heading = document.querySelector(".app-heading");
     const detail = document.getElementById("gameDetail");
-
     grid.style.display = "none";
     heading.style.display = "none";
-
     detail.classList.remove("show", "leaving");
-
     document.getElementById("selectedGameIcon").src = data.icon;
     document.getElementById("selectedGameName").textContent = data.name;
     document.getElementById("selectedGameDescription").textContent = data.description;
-
     document.getElementById("gameContent").innerHTML = "";
     document.getElementById("systemContent").innerHTML = "";
-
     if (game === "system") {
-        document.getElementById("systemContent").innerHTML =
-            '<div class="section-title">System Tweaks</div>';
-
+        document.getElementById("systemContent").innerHTML = '<div class="section-title">System Tweaks</div>';
         renderFeatures(systemTweaks, "systemContent");
     } else {
-        document.getElementById("gameContent").innerHTML =
-            '<div class="section-title">Gaming Tweaks</div>';
-
+        document.getElementById("gameContent").innerHTML = '<div class="section-title">Gaming Tweaks</div>';
         let features = [...gameTweaks];
-
         if (game === "ml") features.push(...mlTweaks);
-
         renderFeatures(features, "gameContent");
     }
-
     detail.style.display = "block";
     void detail.offsetWidth;
     detail.classList.add("show");
-
     window.scrollTo({top: 0, behavior: "smooth"});
 }
 
 function closeGame() {
     const detail = document.getElementById("gameDetail");
-
     detail.classList.remove("show");
     detail.classList.add("leaving");
-
     setTimeout(() => {
         detail.style.display = "none";
         detail.classList.remove("leaving");
-
         document.getElementById("appGrid").style.display = "grid";
         document.querySelector(".app-heading").style.display = "block";
         document.getElementById("gameContent").innerHTML = "";
         document.getElementById("systemContent").innerHTML = "";
-
         window.scrollTo({top: 0, behavior: "smooth"});
     }, 230);
 }
@@ -408,75 +319,34 @@ function closeGame() {
 /* RENDER FEATURES */
 function renderFeatures(features, target) {
     const container = document.getElementById(target);
-
     features.forEach(feature => {
         const card = document.createElement("div");
         card.className = "card";
-
-        const info = document.createElement("div");
-        info.className = "feature-info";
-
-        const heading = document.createElement("h3");
-        heading.textContent = feature.name;
-
-        const description = document.createElement("p");
-        description.textContent = feature.desc;
-
-        info.appendChild(heading);
-        info.appendChild(description);
-
-        const row = document.createElement("div");
-        row.className = "feature-card";
-        row.appendChild(info);
-
-        const label = document.createElement("label");
-        label.className = "switch";
-
-        const input = document.createElement("input");
-        input.type = "checkbox";
-        input.dataset.binary = feature.id;
-        input.addEventListener("change", function() {
-            eksekusiTweak(this);
-        });
-
-        const slider = document.createElement("span");
-        slider.className = "slider";
-
-        label.appendChild(input);
-        label.appendChild(slider);
-
-        row.appendChild(label);
-        card.appendChild(row);
+        card.innerHTML = `
+            <div class="feature-card">
+                <div class="feature-info">
+                    <h3>${feature.name}</h3>
+                    <p>${feature.desc}</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" data-binary="${feature.id}" onchange="eksekusiTweak(this)">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        `;
         container.appendChild(card);
     });
 }
 
-/* ALLOWED BINARIES */
+/* BINARY BRIDGE */
 const allowedBinaries = new Set([
-    "lvnderSF",
-    "lvnderthermal",
-    "lvnderrPERF",
-    "lvnderrRender",
-    "lvnderr60HZ",
-    "lvnderr90HZ",
-    "lvnderr120HZ",
-    "lvnderrdevice",
-    "lvnderrNetwork",
-    "lvnderrWindows",
-    "lvnderrSqlite",
-    "lvnderrDriverGame",
-    "lvnderrCPU",
-    "lvnderMLBB",
-    "lvnderapp",
-    "lvnderrpreload",
-    "lvndThread.sh"
+    "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp",
+    "lvnderrpreload"
 ]);
 
 function updateLog(message, color = "#bb86fc") {
     const log = document.getElementById("console-log");
-
     log.style.opacity = "0";
-
     setTimeout(() => {
         log.textContent = "> " + message;
         log.style.color = color;
@@ -489,113 +359,51 @@ async function eksekusiTweak(input) {
     const binary = input.dataset.binary;
     const enabled = input.checked;
     const card = input.closest(".card");
-
     if (!allowedBinaries.has(binary)) {
         input.checked = false;
         updateLog("ERR: Binary tidak terdaftar.", "#ff5252");
         return;
     }
-
     if (!window.lvnder || typeof window.lvnder.exec !== "function") {
         input.checked = false;
         updateLog("ERR: Bridge Shizuku belum tersedia.", "#ff5252");
         return;
     }
-
     input.disabled = true;
-
     const state = enabled ? "aktif" : "nonaktif";
-
     updateLog("Menjalankan " + binary + " " + state + "...");
-
     try {
-        // LVNDTHREAD RENDERTHREAD BOOSTER
-        if (binary === "lvndThread.sh") {
-            if (typeof window.lvnder.toggleRenderThreadService !== "function") {
-                throw new Error("Bridge lvndThread tidak ditemukan.");
-            }
-
-            const raw = window.lvnder.toggleRenderThreadService(state);
-            const result = typeof raw === "string" ? JSON.parse(raw) : raw;
-
-            if (!result || result.success !== true) {
-                throw new Error(result?.error || "lvndThread gagal dijalankan.");
-            }
-
-            if (card) {
-                card.classList.toggle("feature-enabled", enabled);
-            }
-
-            updateLog(
-                enabled
-                    ? "lvndThread Booster berhasil diaktifkan."
-                    : "lvndThread Booster berhasil dinonaktifkan.",
-                "#00e676"
-            );
-
-            return;
-        }
-
-        // PRELOADER
+        // === LOGIKA KHUSUS PRELOADER (FOREGROUND SERVICE) ===
         if (binary === "lvnderrpreload") {
-            if (typeof window.lvnder.togglePreloadService !== "function") {
-                throw new Error("Bridge Preloader tidak ditemukan.");
-            }
-
             window.lvnder.togglePreloadService(state);
-
-            if (card) {
-                card.classList.toggle("feature-enabled", enabled);
-            }
-
-            updateLog(
-                enabled
-                    ? "Preloader Aktif (Auto-Refresh 5s)"
-                    : "Preloader Dimatikan",
-                "#00e676"
-            );
-
-            return;
+            if (card) card.classList.toggle("feature-enabled", enabled);
+            updateLog(enabled ? "Preloader Aktif (Auto-Refresh 5s)" : "Preloader Dimatikan", "#00e676");
+            input.disabled = false;
+            return; // Keluar dari fungsi
         }
 
-        // TWEAK NORMAL
+        // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
         const raw = await window.lvnder.exec(binary, state);
         const result = typeof raw === "string" ? JSON.parse(raw) : raw;
-
-        if (!result || result.success !== true) {
-            throw new Error(result?.error || "Eksekusi binary gagal.");
-        }
-
-        if (card) {
-            card.classList.toggle("feature-enabled", enabled);
-        }
-
-        updateLog(
-            result.output || binary + " berhasil dijalankan.",
-            "#00e676"
-        );
-
+        if (!result || result.success !== true) throw new Error(result?.error || "Eksekusi binary gagal.");
+        if (card) card.classList.toggle("feature-enabled", enabled);
+        updateLog(result.output || binary + " berhasil dijalankan.", "#00e676");
     } catch (error) {
         input.checked = !enabled;
-
-        if (card) {
-            card.classList.toggle("feature-enabled", !enabled);
-        }
-
-        updateLog(
-            "ERR: " + (error.message || "Eksekusi gagal."),
-            "#ff5252"
-        );
-
+        if (card) card.classList.toggle("feature-enabled", !enabled);
+        updateLog("ERR: " + (error.message || "Eksekusi gagal."), "#ff5252");
     } finally {
         input.disabled = false;
     }
 }
 
-/* SHIZUKU STATUS */
+/* =================================
+   STATUS SHIZUKU & DEVICE INFO
+================================= */
+
+// Fungsi ini dipanggil oleh Kotlin saat Shizuku terhubung/terputus
 function updateShizukuStatus(isConnected) {
     const statusEl = document.getElementById("shizuku-status");
-
     if (isConnected) {
         statusEl.textContent = "SHIZUKU: RUNNING";
         statusEl.className = "shizuku-status running";
@@ -609,26 +417,23 @@ function updateShizukuStatus(isConnected) {
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("homePage").style.display = "block";
     document.getElementById("appsPage").style.display = "none";
-
     currentPage = "home";
 
-    // DEVICE INFO
+    // Load Device Info
     try {
-        if (typeof lvnder !== "undefined" && lvnder.getDeviceInfo) {
+        if (typeof lvnder !== 'undefined' && lvnder.getDeviceInfo) {
             const info = lvnder.getDeviceInfo();
             document.getElementById("device-output").textContent = info;
         } else {
-            document.getElementById("device-output").textContent =
-                "Bridge 'lvnder' tidak ditemukan.";
+            document.getElementById("device-output").textContent = "Bridge 'lvnder' tidak ditemukan.";
         }
     } catch (e) {
-        document.getElementById("device-output").textContent =
-            "Gagal memuat data: " + e.message;
+        document.getElementById("device-output").textContent = "Gagal memuat data: " + e.message;
     }
 
-    // SHIZUKU STATUS
+    // Cek Status Shizuku saat pertama kali dibuka
     try {
-        if (typeof lvnder !== "undefined" && lvnder.isShizukuRunning) {
+        if (typeof lvnder !== 'undefined' && lvnder.isShizukuRunning) {
             const isRunning = lvnder.isShizukuRunning();
             updateShizukuStatus(isRunning);
         }
