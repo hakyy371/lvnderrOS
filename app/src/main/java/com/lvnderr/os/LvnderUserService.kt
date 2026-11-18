@@ -23,8 +23,34 @@ class LvnderUserService(
         "lvnderrWindows",
         "lvnderSF",
         "lvnderthermal",
-        "lvnderrpreload" // <-- DIIZINKAN
+        "lvnderrpreload",
+        "lvndThread.sh"
     )
+
+    private val directory =
+        File("/data/local/tmp/lvnderr")
+
+    private fun runShell(command: String): String {
+        val process = ProcessBuilder(
+            "/system/bin/sh",
+            "-c",
+            command
+        )
+            .redirectErrorStream(true)
+            .start()
+
+        val output = process.inputStream.bufferedReader().use {
+            it.readText()
+        }
+
+        val exitCode = process.waitFor()
+
+        check(exitCode == 0) {
+            "Shell command gagal: $output"
+        }
+
+        return output.trim()
+    }
 
     override fun exec(binary: String, state: String): String {
         require(binary in allowed) {
@@ -34,8 +60,6 @@ class LvnderUserService(
         require(state == "aktif" || state == "nonaktif") {
             "Status tidak valid"
         }
-
-        val directory = File("/data/local/tmp/lvnderr")
 
         check(directory.exists() || directory.mkdirs()) {
             "Gagal membuat direktori binary"
@@ -53,11 +77,64 @@ class LvnderUserService(
             "Tidak bisa memberikan izin eksekusi"
         }
 
-        // === LOGIKA PENERJEMAH ILLUMINATI ===
+        // === LVNDTHREAD SERVICE ===
+        if (binary == "lvndThread.sh") {
+            val pidFile = File(directory, "lvndThread.pid")
+
+            return if (state == "aktif") {
+
+                val scriptPath = file.absolutePath
+                val pidPath = pidFile.absolutePath
+
+                runShell(
+                    """
+                    if [ -f '$pidPath' ] &&
+                       kill -0 "$(cat '$pidPath')" 2>/dev/null; then
+                        echo "lvndThread sudah berjalan"
+                        exit 0
+                    fi
+
+                    /system/bin/sh '$scriptPath' \
+                        >/dev/null 2>&1 &
+
+                    echo $! > '$pidPath'
+                    echo "lvndThread berhasil diaktifkan"
+                    """.trimIndent()
+                )
+
+            } else {
+
+                val pidPath = pidFile.absolutePath
+
+                runShell(
+                    """
+                    if [ -f '$pidPath' ]; then
+                        pid=$(cat '$pidPath')
+
+                        case "$pid" in
+                            ''|*[!0-9]*)
+                                echo "PID tidak valid"
+                                ;;
+                            *)
+                                kill "$pid" 2>/dev/null || true
+                                ;;
+                        esac
+
+                        rm -f '$pidPath'
+                    fi
+
+                    echo "lvndThread berhasil dinonaktifkan"
+                    """.trimIndent()
+                )
+            }
+        }
+
+        // === ILLUMINATI PRELOADER ===
         val actualArgs: Array<String>
+
         if (binary == "lvnderrpreload") {
+
             if (state == "aktif") {
-                // Perintah asli Illuminati (tanpa mlock, karena Shizuku bukan Root)
                 actualArgs = arrayOf(
                     file.absolutePath,
                     "-a", "com.mobile.legends",
@@ -66,12 +143,16 @@ class LvnderUserService(
                     "-v"
                 )
             } else {
-                // Illuminati tidak butuh 'nonaktif', kita cukup kembalikan pesan sukses
                 return "Preload selesai (status: nonaktif)."
             }
+
         } else {
-            // Tweak biasa (60HZ, dll)
-            actualArgs = arrayOf(file.absolutePath, state)
+
+            // Tweak biasa
+            actualArgs = arrayOf(
+                file.absolutePath,
+                state
+            )
         }
 
         val process = ProcessBuilder(*actualArgs)
@@ -88,10 +169,13 @@ class LvnderUserService(
             "Binary gagal. Exit code: $exitCode\n$output"
         }
 
-        return output.ifBlank { "Berhasil dijalankan" }
+        return output.ifBlank {
+            "Berhasil dijalankan"
+        }
     }
 
     override fun destroy() {
         System.exit(0)
     }
 }
+package
