@@ -21,8 +21,7 @@ class PreloadService : Service() {
             if (!isRunning) return
             try {
                 // Panggil preload setiap 5 detik
-                // Menggunakan Companion.remoteService untuk menghindari error
-                MainActivity.Companion.remoteService?.exec(
+                MainActivity.remoteService?.exec(
                     "lvnderrpreload", 
                     "-a com.mobile.legends -a com.dts.freefiremax -t 2"
                 )
