@@ -1,6 +1,7 @@
 package com.lvnderr.os
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import android.content.ComponentName
@@ -18,8 +19,12 @@ import java.io.InputStreamReader
 class MainActivity : Activity() {
 
     private lateinit var webView: WebView
-    private var remoteService: ILvnderService? = null
     private val requestCode = 1001
+
+    // === COMPANION OBJECT (Agar remoteService bisa diakses PreloadService) ===
+    companion object {
+        var remoteService: ILvnderService? = null
+    }
 
     private val serviceArgs by lazy {
         Shizuku.UserServiceArgs(
@@ -33,7 +38,9 @@ class MainActivity : Activity() {
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            remoteService = ILvnderService.Stub.asInterface(service)
+            // Simpan ke companion object agar bisa diakses oleh PreloadService
+            MainActivity.remoteService = ILvnderService.Stub.asInterface(service)
+            
             Toast.makeText(this@MainActivity, "LVNDERR Shizuku terhubung", Toast.LENGTH_SHORT).show()
             
             // Beritahu WebView bahwa Shizuku sudah jalan
@@ -43,7 +50,7 @@ class MainActivity : Activity() {
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
-            remoteService = null
+            MainActivity.remoteService = null
             // Beritahu WebView bahwa Shizuku terputus
             runOnUiThread {
                 webView.evaluateJavascript("updateShizukuStatus(false)", null)
@@ -63,7 +70,7 @@ class MainActivity : Activity() {
         checkShizukuPermission()
         // Jika Shizuku baru dibuka, cek status dan update UI
         runOnUiThread {
-            webView.evaluateJavascript("updateShizukuStatus(${remoteService != null})", null)
+            webView.evaluateJavascript("updateShizukuStatus(${MainActivity.remoteService != null})", null)
         }
     }
 
@@ -109,7 +116,7 @@ class MainActivity : Activity() {
         @JavascriptInterface
         fun exec(binary: String, state: String): String {
             return try {
-                val service = remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
+                val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
                 
                 var output = ""
                 // === LOGIKA PENERJEMAH UNTUK PRELOADER ===
@@ -138,10 +145,25 @@ class MainActivity : Activity() {
             }
         }
 
+        // === FUNGSI BARU UNTUK MENYALAKAN FOREGROUND SERVICE ===
+        @JavascriptInterface
+        fun togglePreloadService(state: String) {
+            val intent = Intent(this@MainActivity, PreloadService::class.java)
+            if (state == "aktif") {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                } else {
+                    startService(intent)
+                }
+            } else {
+                stopService(intent)
+            }
+        }
+
         // Fungsi untuk mengecek apakah Shizuku sedang berjalan & terhubung
         @JavascriptInterface
         fun isShizukuRunning(): Boolean {
-            return Shizuku.pingBinder() && remoteService != null
+            return Shizuku.pingBinder() && MainActivity.remoteService != null
         }
 
         // Fungsi Device Info (Chipset diperbaiki dengan Fallback Berlapis)
