@@ -7,13 +7,19 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
+    
+    <!-- IZIN UNTUK FOREGROUND SERVICE (PRELOADER) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
-    android:allowBackup="false"
-    android:label="lvnderrOS"
-    android:icon="@drawable/gojobattle"
-android:roundIcon="@drawable/gojobattle"
-    android:theme="@android:style/Theme.Material.NoActionBar">
+        android:allowBackup="false"
+        android:label="lvnderrOS"
+        android:icon="@drawable/gojobattle"
+        android:roundIcon="@drawable/gojobattle"
+        android:theme="@android:style/Theme.Material.NoActionBar">
+        
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -24,6 +30,12 @@ android:roundIcon="@drawable/gojobattle"
             </intent-filter>
 
         </activity>
+
+        <!-- DAFTARKAN PRELOAD SERVICE DI SINI -->
+        <service 
+            android:name=".PreloadService" 
+            android:foregroundServiceType="dataSync" 
+            android:exported="false" />
 
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
