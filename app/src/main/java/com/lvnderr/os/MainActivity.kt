@@ -21,6 +21,7 @@ class MainActivity : Activity() {
     private lateinit var webView: WebView
     private val requestCode = 1001
 
+    // === COMPANION OBJECT (Agar remoteService bisa diakses PreloadService) ===
     companion object {
         var remoteService: ILvnderService? = null
     }
@@ -36,65 +37,40 @@ class MainActivity : Activity() {
     }
 
     private val serviceConnection = object : ServiceConnection {
-
-        override fun onServiceConnected(
-            name: ComponentName?,
-            service: IBinder?
-        ) {
-            MainActivity.remoteService =
-                ILvnderService.Stub.asInterface(service)
-
-            Toast.makeText(
-                this@MainActivity,
-                "LVNDERR Shizuku terhubung",
-                Toast.LENGTH_SHORT
-            ).show()
-
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            // Simpan ke companion object agar bisa diakses oleh PreloadService
+            MainActivity.remoteService = ILvnderService.Stub.asInterface(service)
+            
+            Toast.makeText(this@MainActivity, "LVNDERR Shizuku terhubung", Toast.LENGTH_SHORT).show()
+            
+            // Beritahu WebView bahwa Shizuku sudah jalan
             runOnUiThread {
-                webView.evaluateJavascript(
-                    "updateShizukuStatus(true)",
-                    null
-                )
+                webView.evaluateJavascript("updateShizukuStatus(true)", null)
             }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             MainActivity.remoteService = null
-
+            // Beritahu WebView bahwa Shizuku terputus
             runOnUiThread {
-                webView.evaluateJavascript(
-                    "updateShizukuStatus(false)",
-                    null
-                )
+                webView.evaluateJavascript("updateShizukuStatus(false)", null)
             }
         }
     }
 
-    private val permissionListener =
-        Shizuku.OnRequestPermissionResultListener { code, grantResult ->
-
-            if (
-                code == requestCode &&
-                grantResult == PackageManager.PERMISSION_GRANTED
-            ) {
-                bindLvnderService()
-            } else {
-                Toast.makeText(
-                    this,
-                    "Izin Shizuku ditolak",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+    private val permissionListener = Shizuku.OnRequestPermissionResultListener { code, grantResult ->
+        if (code == requestCode && grantResult == PackageManager.PERMISSION_GRANTED) {
+            bindLvnderService()
+        } else {
+            Toast.makeText(this, "Izin Shizuku ditolak", Toast.LENGTH_LONG).show()
         }
+    }
 
     private val binderListener = Shizuku.OnBinderReceivedListener {
         checkShizukuPermission()
-
+        // Jika Shizuku baru dibuka, cek status dan update UI
         runOnUiThread {
-            webView.evaluateJavascript(
-                "updateShizukuStatus(${MainActivity.remoteService != null})",
-                null
-            )
+            webView.evaluateJavascript("updateShizukuStatus(${MainActivity.remoteService != null})", null)
         }
     }
 
@@ -106,17 +82,10 @@ class MainActivity : Activity() {
         webView.settings.domStorageEnabled = true
         webView.settings.allowFileAccess = true
         webView.webViewClient = WebViewClient()
-
-        webView.addJavascriptInterface(
-            LvnderBridge(),
-            "lvnder"
-        )
+        webView.addJavascriptInterface(LvnderBridge(), "lvnder")
 
         setContentView(webView)
-
-        webView.loadUrl(
-            "file:///android_asset/webroot/index.html"
-        )
+        webView.loadUrl("file:///android_asset/webroot/index.html")
 
         Shizuku.addRequestPermissionResultListener(permissionListener)
         Shizuku.addBinderReceivedListenerSticky(binderListener)
@@ -126,11 +95,7 @@ class MainActivity : Activity() {
 
     private fun checkShizukuPermission() {
         if (!Shizuku.pingBinder()) return
-
-        if (
-            Shizuku.checkSelfPermission() ==
-            PackageManager.PERMISSION_GRANTED
-        ) {
+        if (Shizuku.checkSelfPermission() == PackageManager.PERMISSION_GRANTED) {
             bindLvnderService()
         } else {
             Shizuku.requestPermission(requestCode)
@@ -139,42 +104,39 @@ class MainActivity : Activity() {
 
     private fun bindLvnderService() {
         if (!Shizuku.pingBinder()) return
-
         try {
-            Shizuku.bindUserService(
-                serviceArgs,
-                serviceConnection
-            )
+            Shizuku.bindUserService(serviceArgs, serviceConnection)
         } catch (e: Exception) {
-            Toast.makeText(
-                this,
-                "Gagal menghubungkan Shizuku: ${e.message}",
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Gagal menghubungkan Shizuku: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 
     inner class LvnderBridge {
 
-        // =====================================
-        // BINARY DAN SCRIPT
-        // =====================================
-
         @JavascriptInterface
         fun exec(binary: String, state: String): String {
             return try {
-                val service = MainActivity.remoteService
-                    ?: throw IllegalStateException(
-                        "Shizuku belum terhubung"
-                    )
-
-                val output = service.exec(binary, state)
+                val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
+                
+                var output = ""
+                // === LOGIKA PENERJEMAH UNTUK PRELOADER ===
+                if (binary == "lvnderrpreload") {
+                    if (state == "aktif") {
+                        // Perintah Illuminati: preload MLBB & FF, 4 thread, verbose
+                        val args = "-a com.mobile.legends -a com.dts.freefiremax -t 4 -v"
+                        output = service.exec(binary, args)
+                    } else {
+                        output = "Preload dihentikan."
+                    }
+                } else {
+                    // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
+                    output = service.exec(binary, state)
+                }
 
                 JSONObject().apply {
                     put("success", true)
                     put("output", output)
                 }.toString()
-
             } catch (e: Exception) {
                 JSONObject().apply {
                     put("success", false)
@@ -183,117 +145,38 @@ class MainActivity : Activity() {
             }
         }
 
-        // =====================================
-        // PRELOADER
-        // =====================================
-
+        // === FUNGSI BARU UNTUK MENYALAKAN FOREGROUND SERVICE ===
         @JavascriptInterface
-        fun togglePreloadService(state: String): String {
-            return try {
-                require(state == "aktif" || state == "nonaktif")
-
-                val intent = Intent(
-                    this@MainActivity,
-                    PreloadService::class.java
-                )
-
-                if (state == "aktif") {
-                    if (
-                        android.os.Build.VERSION.SDK_INT >=
-                        android.os.Build.VERSION_CODES.O
-                    ) {
-                        startForegroundService(intent)
-                    } else {
-                        startService(intent)
-                    }
+        fun togglePreloadService(state: String) {
+            val intent = Intent(this@MainActivity, PreloadService::class.java)
+            if (state == "aktif") {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
                 } else {
-                    stopService(intent)
+                    startService(intent)
                 }
-
-                JSONObject().apply {
-                    put("success", true)
-                    put("output", "Preloader $state")
-                }.toString()
-
-            } catch (e: Exception) {
-                JSONObject().apply {
-                    put("success", false)
-                    put("error", e.message ?: "Preloader gagal")
-                }.toString()
+            } else {
+                stopService(intent)
             }
         }
 
-        // =====================================
-        // RENDERTHREAD BOOSTER
-        // =====================================
-
-        @JavascriptInterface
-        fun toggleRenderThreadService(state: String): String {
-            return try {
-                require(state == "aktif" || state == "nonaktif") {
-                    "Status tidak valid"
-                }
-
-                val service = MainActivity.remoteService
-                    ?: throw IllegalStateException(
-                        "Shizuku belum terhubung"
-                    )
-
-                val output = service.exec(
-                    "lvndThread.sh",
-                    state
-                )
-
-                JSONObject().apply {
-                    put("success", true)
-                    put("output", output)
-                }.toString()
-
-            } catch (e: Exception) {
-                JSONObject().apply {
-                    put("success", false)
-                    put("error", e.message ?: "RenderThread gagal")
-                }.toString()
-            }
-        }
-
-        // =====================================
-        // SHIZUKU STATUS
-        // =====================================
-
+        // Fungsi untuk mengecek apakah Shizuku sedang berjalan & terhubung
         @JavascriptInterface
         fun isShizukuRunning(): Boolean {
-            return Shizuku.pingBinder() &&
-                MainActivity.remoteService != null
+            return Shizuku.pingBinder() && MainActivity.remoteService != null
         }
 
-        // =====================================
-        // DEVICE INFORMATION
-        // =====================================
-
+        // Fungsi Device Info (Chipset diperbaiki dengan Fallback Berlapis)
         @JavascriptInterface
         fun getDeviceInfo(): String {
             return try {
-
                 val script = """
                     CHIPSET_VAL=${'$'}(getprop ro.soc.model)
-
-                    if [ -z "${'$'}CHIPSET_VAL" ]; then
-                        CHIPSET_VAL=${'$'}(getprop ro.board.platform)
-                    fi
-
-                    if [ -z "${'$'}CHIPSET_VAL" ]; then
-                        CHIPSET_VAL=${'$'}(getprop ro.hardware)
-                    fi
-
-                    if [ -z "${'$'}CHIPSET_VAL" ]; then
-                        CHIPSET_VAL=${'$'}(getprop ro.product.board)
-                    fi
-
-                    if [ -z "${'$'}CHIPSET_VAL" ]; then
-                        CHIPSET_VAL=${'$'}(grep -m1 'Hardware' /proc/cpuinfo | cut -d: -f2 | xargs)
-                    fi
-
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.board.platform); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.hardware); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.product.board); fi
+                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(grep -m1 'Hardware' /proc/cpuinfo | cut -d: -f2 | xargs); fi
+                    
                     echo "DEVICE   : ${'$'}(getprop ro.product.model)"
                     echo "BRAND    : ${'$'}(getprop ro.product.brand)"
                     echo "ANDROID  : ${'$'}(getprop ro.build.version.release)"
@@ -302,27 +185,14 @@ class MainActivity : Activity() {
                     echo "CHIPSET  : ${'$'}CHIPSET_VAL"
                 """.trimIndent()
 
-                val process = Runtime.getRuntime().exec(
-                    arrayOf("sh", "-c", script)
-                )
-
-                val reader = BufferedReader(
-                    InputStreamReader(process.inputStream)
-                )
-
+                val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", script))
+                val reader = BufferedReader(InputStreamReader(process.inputStream))
                 val output = StringBuilder()
                 var line: String?
-
-                while (
-                    reader.readLine().also { line = it } != null
-                ) {
+                while (reader.readLine().also { line = it } != null) {
                     output.append(line).append("\n")
                 }
-
-                process.waitFor()
-
                 output.toString().trim()
-
             } catch (e: Exception) {
                 "Gagal membaca data: ${e.message}"
             }
@@ -330,27 +200,16 @@ class MainActivity : Activity() {
     }
 
     override fun onDestroy() {
-        Shizuku.removeRequestPermissionResultListener(
-            permissionListener
-        )
-
-        Shizuku.removeBinderReceivedListener(
-            binderListener
-        )
+        Shizuku.removeRequestPermissionResultListener(permissionListener)
+        Shizuku.removeBinderReceivedListener(binderListener)
 
         if (Shizuku.pingBinder()) {
             try {
-                Shizuku.unbindUserService(
-                    serviceArgs,
-                    serviceConnection,
-                    false
-                )
-            } catch (_: Exception) {
-            }
+                Shizuku.unbindUserService(serviceArgs, serviceConnection, false)
+            } catch (_: Exception) {}
         }
 
         webView.destroy()
         super.onDestroy()
     }
 }
-package
