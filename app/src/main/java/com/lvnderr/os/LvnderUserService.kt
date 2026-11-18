@@ -53,6 +53,7 @@ class LvnderUserService(
     }
 
     override fun exec(binary: String, state: String): String {
+
         require(binary in allowed) {
             "Binary tidak terdaftar: $binary"
         }
@@ -78,13 +79,14 @@ class LvnderUserService(
         }
 
         // === LVNDTHREAD SERVICE ===
+
         if (binary == "lvndThread.sh") {
+
             val pidFile = File(directory, "lvndThread.pid")
+            val scriptPath = file.absolutePath
+            val pidPath = pidFile.absolutePath
 
             return if (state == "aktif") {
-
-                val scriptPath = file.absolutePath
-                val pidPath = pidFile.absolutePath
 
                 runShell(
                     """
@@ -94,29 +96,26 @@ class LvnderUserService(
                         exit 0
                     fi
 
-                    /system/bin/sh '$scriptPath' \
-                        >/dev/null 2>&1 &
+                    /system/bin/sh '$scriptPath' >/dev/null 2>&1 &
 
-                    echo $! > '$pidPath'
+                    echo ${'$'}! > '$pidPath'
                     echo "lvndThread berhasil diaktifkan"
                     """.trimIndent()
                 )
 
             } else {
 
-                val pidPath = pidFile.absolutePath
-
                 runShell(
                     """
                     if [ -f '$pidPath' ]; then
-                        pid=$(cat '$pidPath')
+                        pid=${'$'}(cat '$pidPath')
 
-                        case "$pid" in
+                        case "${'$'}pid" in
                             ''|*[!0-9]*)
                                 echo "PID tidak valid"
                                 ;;
                             *)
-                                kill "$pid" 2>/dev/null || true
+                                kill "${'$'}pid" 2>/dev/null || true
                                 ;;
                         esac
 
@@ -130,32 +129,46 @@ class LvnderUserService(
         }
 
         // === ILLUMINATI PRELOADER ===
-        val actualArgs: Array<String>
 
         if (binary == "lvnderrpreload") {
 
-            if (state == "aktif") {
-                actualArgs = arrayOf(
-                    file.absolutePath,
-                    "-a", "com.mobile.legends",
-                    "-a", "com.dts.freefiremax",
-                    "-t", "4",
-                    "-v"
-                )
-            } else {
+            if (state == "nonaktif") {
                 return "Preload selesai (status: nonaktif)."
             }
 
-        } else {
-
-            // Tweak biasa
-            actualArgs = arrayOf(
+            val actualArgs = arrayOf(
                 file.absolutePath,
-                state
+                "-a", "com.mobile.legends",
+                "-a", "com.dts.freefiremax",
+                "-t", "4",
+                "-v"
             )
+
+            val process = ProcessBuilder(*actualArgs)
+                .redirectErrorStream(true)
+                .start()
+
+            val output = process.inputStream.bufferedReader().use {
+                it.readText()
+            }
+
+            val exitCode = process.waitFor()
+
+            check(exitCode == 0) {
+                "Preloader gagal. Exit code: $exitCode\n$output"
+            }
+
+            return output.ifBlank {
+                "Preloader berhasil dijalankan"
+            }
         }
 
-        val process = ProcessBuilder(*actualArgs)
+        // === TWEAK BIASA ===
+
+        val process = ProcessBuilder(
+            file.absolutePath,
+            state
+        )
             .redirectErrorStream(true)
             .start()
 
@@ -178,4 +191,3 @@ class LvnderUserService(
         System.exit(0)
     }
 }
-package
