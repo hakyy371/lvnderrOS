@@ -145,7 +145,7 @@ class MainActivity : Activity() {
             }
         }
 
-        // === FUNGSI BARU UNTUK MENYALAKAN FOREGROUND SERVICE ===
+        // === FUNGSI UNTUK MENYALAKAN FOREGROUND SERVICE (PRELOADER) ===
         @JavascriptInterface
         fun togglePreloadService(state: String) {
             val intent = Intent(this@MainActivity, PreloadService::class.java)
@@ -157,6 +157,42 @@ class MainActivity : Activity() {
                 }
             } else {
                 stopService(intent)
+            }
+        }
+
+        // === FUNGSI UNTUK RENDERTHREAD BOOSTER ===
+        @JavascriptInterface
+        fun toggleRenderThread(state: String): String {
+            return try {
+                val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
+                val output = service.exec("lvndThread.sh", state)
+                JSONObject().apply {
+                    put("success", true)
+                    put("output", output)
+                }.toString()
+            } catch (e: Exception) {
+                JSONObject().apply {
+                    put("success", false)
+                    put("error", e.message ?: "Eksekusi gagal")
+                }.toString()
+            }
+        }
+
+        // === FUNGSI UNTUK MENAMBAH GAME KE LIST ===
+        @JavascriptInterface
+        fun addGameToBooster(packageName: String): String {
+            return try {
+                val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
+                val output = service.exec("lvndaddgame.sh", packageName)
+                JSONObject().apply {
+                    put("success", true)
+                    put("output", output)
+                }.toString()
+            } catch (e: Exception) {
+                JSONObject().apply {
+                    put("success", false)
+                    put("error", e.message ?: "Gagal menambah game")
+                }.toString()
             }
         }
 
