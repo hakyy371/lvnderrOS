@@ -18,21 +18,18 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html { scroll-behavior: smooth; }
 body {
-    margin: 0;
-    min-height: 100vh;
-    padding: 22px 16px calc(125px + env(safe-area-inset-bottom));
+    margin: 0; min-height: 100vh; padding: 22px 16px calc(125px + env(safe-area-inset-bottom));
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: radial-gradient(circle at 90% 0%, #241343 0%, transparent 42%), radial-gradient(circle at 0% 60%, #160d29 0%, transparent 40%), var(--bg);
-    color: #e2dcf8;
-    overflow-x: hidden;
+    color: #e2dcf8; overflow-x: hidden;
 }
 button { font-family: inherit; }
 .container { width: 100%; max-width: 480px; margin: auto; }
 
-/* PAGE TRANSITION */
+/* PAGE TRANSITION (Lebih Ringan & Cepat) */
 .page { display: none; opacity: 0; }
-.page.active { display: block; animation: pageEnter .55s cubic-bezier(.22,1,.36,1) both; }
-@keyframes pageEnter { from { opacity: 0; transform: translateY(18px) scale(.985); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+.page.active { display: block; animation: pageEnter .3s ease-out both; }
+@keyframes pageEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 /* HOME */
 .home-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 5px 22px; }
@@ -41,7 +38,7 @@ button { font-family: inherit; }
 .home-version { color: #d5b5ff; background: rgba(187,134,252,.12); border: 1px solid var(--border); padding: 7px 12px; border-radius: 20px; font-size: 10px; }
 .anime-hero { position: relative; overflow: hidden; border-radius: 20px; border: 1px solid rgba(187,134,252,.3); background: #10091c; box-shadow: 0 12px 35px #0008; }
 .anime-hero img { display: block; width: 100%; height: auto; max-height: 330px; object-fit: contain; }
-.hero-tag { position: absolute; top: 14px; left: 14px; z-index: 2; background: rgba(10,5,20,.75); backdrop-filter: blur(10px); border: 1px solid rgba(187,134,252,.4); color: #d9baff; padding: 7px 12px; border-radius: 20px; font-size: 9px; letter-spacing: 2px; }
+.hero-tag { position: absolute; top: 14px; left: 14px; z-index: 2; background: rgba(10,5,20,.75); backdrop-filter: blur(5px); border: 1px solid rgba(187,134,252,.4); color: #d9baff; padding: 7px 12px; border-radius: 20px; font-size: 9px; letter-spacing: 2px; }
 .home-intro { padding: 25px 7px 22px; }
 .home-intro h1 { font-size: 27px; font-weight: 900; margin: 0; background: linear-gradient(90deg,#fff,#d8b4ff,#9c65ec); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .home-author { color: var(--purple); font-size: 10px; letter-spacing: 3px; margin-top: 9px; }
@@ -52,7 +49,7 @@ button { font-family: inherit; }
 .home-footer-text { color: #665675; font-size: 9px; margin-top: 8px; }
 
 /* DEVICE INFO CARD & SHIZUKU STATUS */
-.device-info-card { background: rgba(25,20,45,.65); border: 1px solid var(--border); border-radius: 17px; padding: 17px; margin-bottom: 20px; box-shadow: 0 5px 18px #0002; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.device-info-card { background: rgba(25,20,45,.65); border: 1px solid var(--border); border-radius: 17px; padding: 17px; margin-bottom: 20px; box-shadow: 0 5px 18px #0002; backdrop-filter: blur(10px); }
 .device-info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .device-info-title { font-size: 11px; text-transform: uppercase; color: #8b80b6; font-weight: 700; }
 .shizuku-status { font-size: 9px; font-weight: bold; padding: 4px 8px; border-radius: 10px; letter-spacing: 1px; }
@@ -65,20 +62,20 @@ button { font-family: inherit; }
 .app-heading h2 { margin: 0; color: white; font-size: 25px; }
 .app-heading p { color: #8b80b6; font-size: 12px; }
 .app-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
-.app-item { border: 1px solid var(--border); background: rgba(25,20,45,.65); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 20px; padding: 20px 10px; color: white; display: flex; flex-direction: column; align-items: center; gap: 13px; min-height: 145px; cursor: pointer; transition: transform .4s cubic-bezier(.22,1,.36,1), background .4s ease, border-color .4s ease, box-shadow .4s ease; animation: cardEnter .55s both; }
-.app-item:nth-child(2) { animation-delay: .07s; } .app-item:nth-child(3) { animation-delay: .14s; } .app-item:nth-child(4) { animation-delay: .21s; }
-@keyframes cardEnter { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.app-item { border: 1px solid var(--border); background: rgba(25,20,45,.65); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px 10px; color: white; display: flex; flex-direction: column; align-items: center; gap: 13px; min-height: 145px; cursor: pointer; transition: transform .2s ease, background .2s ease; animation: cardEnter .3s both; }
+.app-item:nth-child(2) { animation-delay: .05s; } .app-item:nth-child(3) { animation-delay: .1s; } .app-item:nth-child(4) { animation-delay: .15s; }
+@keyframes cardEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .app-item:active { transform: scale(.94); background: rgba(187,134,252,.18); }
 .app-item img { width: 76px; height: 76px; border-radius: 18px; object-fit: cover; box-shadow: 0 5px 18px #0007; }
 .app-item span { font-size: 12px; font-weight: 700; }
 
 /* GAME DETAIL */
 .game-detail { display: none; opacity: 0; }
-.game-detail.show { display: block; animation: detailEnter .5s cubic-bezier(.22,1,.36,1) both; }
-@keyframes detailEnter { from { opacity: 0; transform: translateY(20px) scale(.98); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
-.game-detail.leaving { animation: detailExit .22s ease forwards; pointer-events: none; }
-@keyframes detailExit { to { opacity: 0; transform: translateY(-10px); filter: blur(3px); } }
-.back-btn { border: 1px solid var(--border); background: rgba(187,134,252,.1); color: var(--purple); padding: 12px 16px; border-radius: 12px; margin: 5px 0 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: .3s; }
+.game-detail.show { display: block; animation: detailEnter .3s ease-out both; }
+@keyframes detailEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.game-detail.leaving { animation: detailExit .2s ease forwards; pointer-events: none; }
+@keyframes detailExit { to { opacity: 0; transform: translateY(-5px); } }
+.back-btn { border: 1px solid var(--border); background: rgba(187,134,252,.1); color: var(--purple); padding: 12px 16px; border-radius: 12px; margin: 5px 0 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: .2s; }
 .back-btn:active { transform: scale(.94); }
 .game-title { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; padding: 15px; border: 1px solid var(--border); background: rgba(25,20,45,.65); border-radius: 16px; }
 .game-title img { width: 53px; height: 53px; object-fit: cover; border-radius: 13px; }
@@ -87,33 +84,39 @@ button { font-family: inherit; }
 
 /* FEATURE CARDS */
 .section-title { font-size: 16px; font-weight: 700; color: white; margin: 22px 0 12px; }
-.card { background: var(--panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.07); padding: 17px; border-radius: 17px; margin-bottom: 13px; box-shadow: 0 5px 18px #0002; transition: transform .4s cubic-bezier(.22,1,.36,1), border-color .35s ease, background .35s ease, box-shadow .35s ease; animation: featureEnter .5s both; }
-.card:nth-of-type(2) { animation-delay: .04s; } .card:nth-of-type(3) { animation-delay: .08s; } .card:nth-of-type(4) { animation-delay: .12s; } .card:nth-of-type(5) { animation-delay: .16s; } .card:nth-of-type(6) { animation-delay: .20s; }
-@keyframes featureEnter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--panel); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.07); padding: 17px; border-radius: 17px; margin-bottom: 13px; box-shadow: 0 5px 18px #0002; transition: transform .2s ease, border-color .2s ease, background .2s ease; animation: featureEnter .3s both; }
+.card:nth-of-type(2) { animation-delay: .03s; } .card:nth-of-type(3) { animation-delay: .06s; } .card:nth-of-type(4) { animation-delay: .09s; } .card:nth-of-type(5) { animation-delay: .12s; } .card:nth-of-type(6) { animation-delay: .15s; }
+@keyframes featureEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .card.feature-enabled { border-color: rgba(187,134,252,.55); background: rgba(65,35,95,.32); box-shadow: 0 0 20px rgba(187,134,252,.09); }
 .feature-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .feature-info { flex: 1; min-width: 0; }
 .feature-info h3 { font-size: 14px; color: white; margin: 0; }
 .feature-info p { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 6px 0 0; }
 
-/* SMOOTH TOGGLE */
+/* SMOOTH TOGGLE & LOADING ANIMATION */
 .switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; inset: 0; cursor: pointer; border-radius: 30px; background: rgba(255,255,255,.12); transition: background .4s ease, box-shadow .4s ease; }
-.slider:before { content: ""; position: absolute; height: 22px; width: 22px; left: 4px; bottom: 4px; border-radius: 50%; background: white; box-shadow: 0 2px 5px #0005; transition: transform .4s cubic-bezier(.22,1,.36,1); }
-.switch input:checked + .slider { background: linear-gradient(135deg,#bb86fc,#9c27b0); box-shadow: 0 0 14px rgba(187,134,252,.4); }
+.slider { position: absolute; inset: 0; cursor: pointer; border-radius: 30px; background: rgba(255,255,255,.12); transition: background .3s ease; }
+.slider:before { content: ""; position: absolute; height: 22px; width: 22px; left: 4px; bottom: 4px; border-radius: 50%; background: white; box-shadow: 0 2px 5px #0005; transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.switch input:checked + .slider { background: linear-gradient(135deg,#bb86fc,#9c27b0); }
 .switch input:checked + .slider:before { transform: translateX(22px); }
-.switch input:disabled + .slider { opacity: .45; cursor: wait; }
+
+/* Loading Spinner on Disabled */
+.switch input:disabled + .slider { opacity: .6; cursor: wait; }
+.switch input:disabled + .slider:before { 
+    animation: pulseLoading 1s infinite alternate;
+}
+@keyframes pulseLoading { from { transform: scale(1); } to { transform: scale(0.8); background: #ddd; } }
 
 /* TERMINAL */
-.log-container { margin-top: 25px; animation: featureEnter .6s ease both; }
+.log-container { margin-top: 25px; animation: featureEnter .3s ease both; }
 .log-title { font-size: 11px; text-transform: uppercase; color: #8b80b6; font-weight: 700; margin-bottom: 9px; }
-#console-log { background: rgba(8,6,17,.85); padding: 15px; border-radius: 12px; font-family: monospace; font-size: 11px; line-height: 1.7; color: var(--purple); border: 1px solid var(--border); overflow-wrap: anywhere; transition: color .3s ease, border-color .3s ease; }
+#console-log { background: rgba(8,6,17,.85); padding: 15px; border-radius: 12px; font-family: monospace; font-size: 11px; line-height: 1.7; color: var(--purple); border: 1px solid var(--border); overflow-wrap: anywhere; transition: color .2s ease; }
 
 /* FLOATING NAVIGATION */
-.bottom-nav { position: fixed; z-index: 99; bottom: calc(18px + env(safe-area-inset-bottom)); left: 18px; right: 18px; max-width: 440px; margin: auto; border: 1px solid rgba(187,134,252,.22); border-radius: 22px; padding: 10px 20px; background: rgba(15,9,29,.88); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); box-shadow: 0 10px 35px #0007; display: flex; justify-content: center; align-items: center; gap: 55px; }
-.nav-btn { position: relative; border: 0; background: transparent; color: #80749f; cursor: pointer; font-size: 11px; font-weight: 600; min-width: 65px; padding: 7px 10px; border-radius: 14px; transition: .35s cubic-bezier(.22,1,.36,1); }
-.nav-btn span { display: block; font-size: 23px; margin-bottom: 4px; transition: transform .35s ease, filter .35s ease; }
+.bottom-nav { position: fixed; z-index: 99; bottom: calc(18px + env(safe-area-inset-bottom)); left: 18px; right: 18px; max-width: 440px; margin: auto; border: 1px solid rgba(187,134,252,.22); border-radius: 22px; padding: 10px 20px; background: rgba(15,9,29,.88); backdrop-filter: blur(15px); box-shadow: 0 10px 35px #0007; display: flex; justify-content: center; align-items: center; gap: 55px; }
+.nav-btn { position: relative; border: 0; background: transparent; color: #80749f; cursor: pointer; font-size: 11px; font-weight: 600; min-width: 65px; padding: 7px 10px; border-radius: 14px; transition: .2s ease; }
+.nav-btn span { display: block; font-size: 23px; margin-bottom: 4px; transition: transform .2s ease; }
 .nav-btn.active { color: #d8b4ff; background: rgba(187,134,252,.09); }
 .nav-btn.active span { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 8px #bb86fc); }
 .nav-btn:active { transform: scale(.92); }
@@ -122,7 +125,6 @@ button { font-family: inherit; }
 @media(max-width:360px) {
     .home-brand { font-size: 22px; } .home-intro h1 { font-size: 24px; } .app-item img { width: 65px; height: 65px; } .bottom-nav { gap: 35px; left: 14px; right: 14px; padding: 9px 15px; }
 }
-@media(prefers-reduced-motion:reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 
@@ -158,7 +160,6 @@ button { font-family: inherit; }
     <div class="device-info-card">
         <div class="device-info-header">
             <div class="device-info-title">DEVICE INFORMATION</div>
-            <!-- INDIKATOR STATUS SHIZUKU -->
             <div id="shizuku-status" class="shizuku-status not-running">SHIZUKU: NOT RUNNING</div>
         </div>
         <pre id="device-output">Memuat data perangkat...</pre>
@@ -178,15 +179,14 @@ button { font-family: inherit; }
         <p>Select your gaming platform</p>
     </div>
 
-    <!-- FITUR TAMBAH GAME (BARU) -->
+    <!-- FITUR TAMBAH GAME -->
     <div style="margin-bottom: 20px; padding: 0 5px;">
         <input type="text" id="newGamePackage" placeholder="Ketik nama paket (cth: com.tencent.ig)" 
                style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(25,20,45,.65); border: 1px solid var(--border); color: white; margin-bottom: 10px;">
-        <button onclick="tambahGame()" style="width: 100%; padding: 12px; border-radius: 10px; background: var(--purple); color: black; font-weight: bold; border: none; transition: 0.3s;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
+        <button onclick="tambahGame()" style="width: 100%; padding: 12px; border-radius: 10px; background: var(--purple); color: black; font-weight: bold; border: none; transition: 0.2s;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
             + Tambah Game ke Booster
         </button>
     </div>
-    <!-- END FITUR TAMBAH GAME -->
 
     <div class="app-grid" id="appGrid">
         <button class="app-item" onclick="openGame('ff')"><img src="icons/ffmax.png" alt="Free Fire MAX"><span>Free Fire MAX</span></button>
@@ -243,8 +243,8 @@ function showPage(page) {
         target.classList.add("active");
         currentPage = page;
         window.scrollTo({top: 0, behavior: "smooth"});
-        setTimeout(() => { isNavigating = false; }, 550);
-    }, 100);
+        setTimeout(() => { isNavigating = false; }, 300);
+    }, 50);
 }
 
 /* GAME DATA */
@@ -322,7 +322,7 @@ function closeGame() {
         document.getElementById("gameContent").innerHTML = "";
         document.getElementById("systemContent").innerHTML = "";
         window.scrollTo({top: 0, behavior: "smooth"});
-    }, 230);
+    }, 200);
 }
 
 /* RENDER FEATURES */
@@ -347,11 +347,31 @@ function renderFeatures(features, target) {
     });
 }
 
-/* BINARY BRIDGE */
+/* BINARY BRIDGE (ASYNC WRAPPER) */
 const allowedBinaries = new Set([
     "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp",
     "lvnderrpreload", "lvndThread.sh"
 ]);
+
+let callbackCounter = 0;
+const callbacks = {};
+
+// Fungsi Callback yang dipanggil Kotlin
+window.lvnderCallback = function(id, data) {
+    if (callbacks[id]) {
+        callbacks[id](data);
+        delete callbacks[id];
+    }
+};
+
+// Wrapper Promise untuk memanggil Kotlin secara Async
+function execAsync(binary, state) {
+    return new Promise((resolve) => {
+        const id = "cb_" + (callbackCounter++);
+        callbacks[id] = resolve;
+        window.lvnder.execAsync(binary, state, id);
+    });
+}
 
 function updateLog(message, color = "#bb86fc") {
     const log = document.getElementById("console-log");
@@ -360,7 +380,7 @@ function updateLog(message, color = "#bb86fc") {
         log.textContent = "> " + message;
         log.style.color = color;
         log.style.opacity = "1";
-    }, 120);
+    }, 100);
 }
 
 /* EXECUTE TWEAK */
@@ -374,7 +394,7 @@ async function eksekusiTweak(input) {
         updateLog("ERR: Binary tidak terdaftar.", "#ff5252");
         return;
     }
-    if (!window.lvnder || typeof window.lvnder.exec !== "function") {
+    if (!window.lvnder || typeof window.lvnder.execAsync !== "function") {
         input.checked = false;
         updateLog("ERR: Bridge Shizuku belum tersedia.", "#ff5252");
         return;
@@ -405,8 +425,8 @@ async function eksekusiTweak(input) {
             return;
         }
 
-        // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
-        const raw = await window.lvnder.exec(binary, state);
+        // === LOGIKA NORMAL UNTUK TWEAK LAIN (Pakai Async) ===
+        const raw = await execAsync(binary, state);
         const result = typeof raw === "string" ? JSON.parse(raw) : raw;
         if (!result || result.success !== true) throw new Error(result?.error || "Eksekusi binary gagal.");
         if (card) card.classList.toggle("feature-enabled", enabled);
@@ -420,7 +440,7 @@ async function eksekusiTweak(input) {
     }
 }
 
-/* FUNGSI TAMBAH GAME (BARU) */
+/* FUNGSI TAMBAH GAME */
 function tambahGame() {
     const pkg = document.getElementById("newGamePackage").value.trim();
     if (!pkg) return alert("Masukkan nama paket game!");
@@ -459,7 +479,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("appsPage").style.display = "none";
     currentPage = "home";
 
-    // Load Device Info
     try {
         if (typeof lvnder !== 'undefined' && lvnder.getDeviceInfo) {
             const info = lvnder.getDeviceInfo();
@@ -471,7 +490,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("device-output").textContent = "Gagal memuat data: " + e.message;
     }
 
-    // Cek Status Shizuku saat pertama kali dibuka
     try {
         if (typeof lvnder !== 'undefined' && lvnder.isShizukuRunning) {
             const isRunning = lvnder.isShizukuRunning();
