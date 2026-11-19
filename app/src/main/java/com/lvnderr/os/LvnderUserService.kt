@@ -2,6 +2,7 @@ package com.lvnderr.os
 
 import android.content.Context
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 class LvnderUserService(
     private val context: Context
@@ -12,7 +13,7 @@ class LvnderUserService(
         "lvnderrCPU", "lvnderrdevice", "lvnderrDriverGame", "lvnderrNetwork",
         "lvnderrPERF", "lvnderrRender", "lvnderrSqlite", "lvnderrWindows",
         "lvnderSF", "lvnderthermal", "lvnderrpreload",
-        "lvndThread.sh", "lvndaddgame.sh" // <-- TAMBAHAN BARU
+        "lvndThread.sh", "lvndaddgame.sh"
     )
 
     override fun exec(binary: String, state: String): String {
@@ -22,7 +23,6 @@ class LvnderUserService(
         check(directory.exists() || directory.mkdirs()) { "Gagal membuat direktori binary" }
         val file = File(directory, binary)
 
-        // Ekstrak dari assets
         context.assets.open("binaries/$binary").use { input ->
             file.outputStream().use { output -> input.copyTo(output) }
         }
@@ -31,11 +31,9 @@ class LvnderUserService(
         // === LOGIKA UNTUK SCRIPT SHELL (RENDERTHREAD BOOSTER) ===
         if (binary == "lvndThread.sh") {
             return if (state == "aktif") {
-                // Jalankan di background, jangan ditunggu (waitFor)
                 ProcessBuilder("sh", file.absolutePath).start()
                 "RenderThread Booster Aktif di background."
             } else {
-                // Matikan prosesnya
                 try {
                     Runtime.getRuntime().exec("pkill -f lvndThread.sh").waitFor()
                 } catch (_: Exception) {}
@@ -45,7 +43,6 @@ class LvnderUserService(
 
         // === LOGIKA UNTUK MENAMBAH GAME ===
         if (binary == "lvndaddgame.sh") {
-            // 'state' di sini berisi nama paket game (misal: com.tencent.ig)
             val process = ProcessBuilder("sh", file.absolutePath, state).redirectErrorStream(true).start()
             val output = process.inputStream.bufferedReader().use { it.readText() }
             process.waitFor()
@@ -66,12 +63,24 @@ class LvnderUserService(
             return "Preload selesai."
         }
 
-        // === LOGIKA UNTUK TWEAK BIASA (60HZ, SF, dll) ===
+        // === LOGIKA UNTUK TWEAK BIASA (60HZ, PERF, SF, dll) ===
         require(state == "aktif" || state == "nonaktif") { "Status tidak valid" }
+        
         val process = ProcessBuilder(file.absolutePath, state).redirectErrorStream(true).start()
+        
+        // === KUNCI PERBAIKAN: WAITFOR DENGAN TIMEOUT 5 DETIK ===
+        val isFinished = process.waitFor(5, TimeUnit.SECONDS)
+        
+        if (!isFinished) {
+            process.destroyForcibly() // Matikan paksa jika hang
+            throw Exception("Timeout! Tweak memakan waktu terlalu lama atau tidak didukung HP ini.")
+        }
+
         val output = process.inputStream.bufferedReader().use { it.readText() }
-        val exitCode = process.waitFor()
+        val exitCode = process.exitValue()
+        
         check(exitCode == 0) { "Binary gagal. Exit code: $exitCode\n$output" }
+        
         return output.ifBlank { "Berhasil dijalankan" }
     }
 
