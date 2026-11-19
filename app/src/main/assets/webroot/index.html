@@ -177,6 +177,17 @@ button { font-family: inherit; }
         <h2>Applications</h2>
         <p>Select your gaming platform</p>
     </div>
+
+    <!-- FITUR TAMBAH GAME (BARU) -->
+    <div style="margin-bottom: 20px; padding: 0 5px;">
+        <input type="text" id="newGamePackage" placeholder="Ketik nama paket (cth: com.tencent.ig)" 
+               style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(25,20,45,.65); border: 1px solid var(--border); color: white; margin-bottom: 10px;">
+        <button onclick="tambahGame()" style="width: 100%; padding: 12px; border-radius: 10px; background: var(--purple); color: black; font-weight: bold; border: none; transition: 0.3s;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
+            + Tambah Game ke Booster
+        </button>
+    </div>
+    <!-- END FITUR TAMBAH GAME -->
+
     <div class="app-grid" id="appGrid">
         <button class="app-item" onclick="openGame('ff')"><img src="icons/ffmax.png" alt="Free Fire MAX"><span>Free Fire MAX</span></button>
         <button class="app-item" onclick="openGame('pubg')"><img src="icons/pubg.png" alt="PUBG Mobile"><span>PUBG Mobile</span></button>
@@ -246,6 +257,7 @@ const gameData = {
 
 /* FEATURE DATA */
 const gameTweaks = [
+    { id: "lvndThread.sh", name: "RenderThread Booster", desc: "Memprioritaskan RenderThread game agar FPS stabil saat war." },
     { id: "lvnderSF", name: "SurfaceFlinger Optimizer", desc: "Tuning VSYNC adaptif dan optimasi rendering." },
     { id: "lvnderrRender", name: "SkiaGL Render Engine", desc: "Pengaturan rendering grafis Android." },
     { id: "lvnderrNetwork", name: "Network Latency Tuner", desc: "Pengaturan jaringan dan respons koneksi." },
@@ -255,11 +267,7 @@ const gameTweaks = [
 ];
 const mlTweaks = [];
 const systemTweaks = [
-    { 
-        id: "lvnderrpreload", 
-        name: "App Preloader (Illuminati)", 
-        desc: "Memuat data game ke RAM agar loading instan dan FPS stabil." 
-    },
+    { id: "lvnderrpreload", name: "App Preloader (Illuminati)", desc: "Memuat data game ke RAM agar loading instan dan FPS stabil." },
     { id: "lvnderthermal", name: "Thermal Service", desc: "Pengaturan thermal perangkat. Hindari mematikan proteksi suhu." },
     { id: "lvnderrPERF", name: "Performance Boost", desc: "Pengaturan profil performa perangkat." },
     { id: "lvnderr60HZ", name: "Refresh Rate 60Hz", desc: "Memilih refresh rate 60Hz." },
@@ -286,6 +294,7 @@ function openGame(game) {
     document.getElementById("selectedGameDescription").textContent = data.description;
     document.getElementById("gameContent").innerHTML = "";
     document.getElementById("systemContent").innerHTML = "";
+    
     if (game === "system") {
         document.getElementById("systemContent").innerHTML = '<div class="section-title">System Tweaks</div>';
         renderFeatures(systemTweaks, "systemContent");
@@ -341,7 +350,7 @@ function renderFeatures(features, target) {
 /* BINARY BRIDGE */
 const allowedBinaries = new Set([
     "lvnderSF", "lvnderthermal", "lvnderrPERF", "lvnderrRender", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ", "lvnderrdevice", "lvnderrNetwork", "lvnderrWindows", "lvnderrSqlite", "lvnderrDriverGame", "lvnderrCPU", "lvnderMLBB", "lvnderapp",
-    "lvnderrpreload"
+    "lvnderrpreload", "lvndThread.sh"
 ]);
 
 function updateLog(message, color = "#bb86fc") {
@@ -359,6 +368,7 @@ async function eksekusiTweak(input) {
     const binary = input.dataset.binary;
     const enabled = input.checked;
     const card = input.closest(".card");
+    
     if (!allowedBinaries.has(binary)) {
         input.checked = false;
         updateLog("ERR: Binary tidak terdaftar.", "#ff5252");
@@ -369,9 +379,11 @@ async function eksekusiTweak(input) {
         updateLog("ERR: Bridge Shizuku belum tersedia.", "#ff5252");
         return;
     }
+    
     input.disabled = true;
     const state = enabled ? "aktif" : "nonaktif";
     updateLog("Menjalankan " + binary + " " + state + "...");
+    
     try {
         // === LOGIKA KHUSUS PRELOADER (FOREGROUND SERVICE) ===
         if (binary === "lvnderrpreload") {
@@ -379,7 +391,18 @@ async function eksekusiTweak(input) {
             if (card) card.classList.toggle("feature-enabled", enabled);
             updateLog(enabled ? "Preloader Aktif (Auto-Refresh 5s)" : "Preloader Dimatikan", "#00e676");
             input.disabled = false;
-            return; // Keluar dari fungsi
+            return; 
+        }
+
+        // === LOGIKA KHUSUS RENDERTHREAD BOOSTER ===
+        if (binary === "lvndThread.sh") {
+            const raw = window.lvnder.toggleRenderThread(state);
+            const result = typeof raw === "string" ? JSON.parse(raw) : raw;
+            if (!result || result.success !== true) throw new Error(result?.error || "Eksekusi binary gagal.");
+            if (card) card.classList.toggle("feature-enabled", enabled);
+            updateLog(result.output, "#00e676");
+            input.disabled = false;
+            return;
         }
 
         // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
@@ -397,11 +420,28 @@ async function eksekusiTweak(input) {
     }
 }
 
+/* FUNGSI TAMBAH GAME (BARU) */
+function tambahGame() {
+    const pkg = document.getElementById("newGamePackage").value.trim();
+    if (!pkg) return alert("Masukkan nama paket game!");
+    
+    if (typeof lvnder !== 'undefined' && lvnder.addGameToBooster) {
+        const raw = lvnder.addGameToBooster(pkg);
+        const res = JSON.parse(raw);
+        if (res.success) {
+            alert("Berhasil: " + res.output);
+            document.getElementById("newGamePackage").value = "";
+        } else {
+            alert("Gagal: " + res.error);
+        }
+    } else {
+        alert("Bridge tidak tersedia.");
+    }
+}
+
 /* =================================
    STATUS SHIZUKU & DEVICE INFO
 ================================= */
-
-// Fungsi ini dipanggil oleh Kotlin saat Shizuku terhubung/terputus
 function updateShizukuStatus(isConnected) {
     const statusEl = document.getElementById("shizuku-status");
     if (isConnected) {
