@@ -8,86 +8,70 @@ class LvnderUserService(
 ) : ILvnderService.Stub() {
 
     private val allowed = setOf(
-        "lvnderapp",
-        "lvnderMLBB",
-        "lvnderr60HZ",
-        "lvnderr90HZ",
-        "lvnderr120HZ",
-        "lvnderrCPU",
-        "lvnderrdevice",
-        "lvnderrDriverGame",
-        "lvnderrNetwork",
-        "lvnderrPERF",
-        "lvnderrRender",
-        "lvnderrSqlite",
-        "lvnderrWindows",
-        "lvnderSF",
-        "lvnderthermal",
-        "lvnderrpreload" // <-- DIIZINKAN
+        "lvnderapp", "lvnderMLBB", "lvnderr60HZ", "lvnderr90HZ", "lvnderr120HZ",
+        "lvnderrCPU", "lvnderrdevice", "lvnderrDriverGame", "lvnderrNetwork",
+        "lvnderrPERF", "lvnderrRender", "lvnderrSqlite", "lvnderrWindows",
+        "lvnderSF", "lvnderthermal", "lvnderrpreload",
+        "lvndThread.sh", "lvndaddgame.sh" // <-- TAMBAHAN BARU
     )
 
     override fun exec(binary: String, state: String): String {
-        require(binary in allowed) {
-            "Binary tidak terdaftar: $binary"
-        }
-
-        require(state == "aktif" || state == "nonaktif") {
-            "Status tidak valid"
-        }
+        require(binary in allowed) { "Binary tidak terdaftar: $binary" }
 
         val directory = File("/data/local/tmp/lvnderr")
-
-        check(directory.exists() || directory.mkdirs()) {
-            "Gagal membuat direktori binary"
-        }
-
+        check(directory.exists() || directory.mkdirs()) { "Gagal membuat direktori binary" }
         val file = File(directory, binary)
 
+        // Ekstrak dari assets
         context.assets.open("binaries/$binary").use { input ->
-            file.outputStream().use { output ->
-                input.copyTo(output)
-            }
+            file.outputStream().use { output -> input.copyTo(output) }
         }
+        check(file.setExecutable(true, true) || file.canExecute()) { "Tidak bisa memberikan izin eksekusi" }
 
-        check(file.setExecutable(true, true) || file.canExecute()) {
-            "Tidak bisa memberikan izin eksekusi"
-        }
-
-        // === LOGIKA PENERJEMAH ILLUMINATI ===
-        val actualArgs: Array<String>
-        if (binary == "lvnderrpreload") {
-            if (state == "aktif") {
-                // Perintah asli Illuminati (tanpa mlock, karena Shizuku bukan Root)
-                actualArgs = arrayOf(
-                    file.absolutePath,
-                    "-a", "com.mobile.legends",
-                    "-a", "com.dts.freefiremax",
-                    "-t", "4",
-                    "-v"
-                )
+        // === LOGIKA UNTUK SCRIPT SHELL (RENDERTHREAD BOOSTER) ===
+        if (binary == "lvndThread.sh") {
+            return if (state == "aktif") {
+                // Jalankan di background, jangan ditunggu (waitFor)
+                ProcessBuilder("sh", file.absolutePath).start()
+                "RenderThread Booster Aktif di background."
             } else {
-                // Illuminati tidak butuh 'nonaktif', kita cukup kembalikan pesan sukses
-                return "Preload selesai (status: nonaktif)."
+                // Matikan prosesnya
+                try {
+                    Runtime.getRuntime().exec("pkill -f lvndThread.sh").waitFor()
+                } catch (_: Exception) {}
+                "RenderThread Booster Dimatikan."
             }
-        } else {
-            // Tweak biasa (60HZ, dll)
-            actualArgs = arrayOf(file.absolutePath, state)
         }
 
-        val process = ProcessBuilder(*actualArgs)
-            .redirectErrorStream(true)
-            .start()
-
-        val output = process.inputStream.bufferedReader().use {
-            it.readText()
+        // === LOGIKA UNTUK MENAMBAH GAME ===
+        if (binary == "lvndaddgame.sh") {
+            // 'state' di sini berisi nama paket game (misal: com.tencent.ig)
+            val process = ProcessBuilder("sh", file.absolutePath, state).redirectErrorStream(true).start()
+            val output = process.inputStream.bufferedReader().use { it.readText() }
+            process.waitFor()
+            return output.ifBlank { "Game berhasil ditambahkan" }
         }
 
+        // === LOGIKA UNTUK ILLUMINATI PRELOADER ===
+        if (binary == "lvnderrpreload") {
+            require(state == "aktif" || state == "nonaktif") { "Status tidak valid" }
+            if (state == "aktif") {
+                val process = ProcessBuilder(
+                    file.absolutePath, "-a", "com.mobile.legends", "-a", "com.dts.freefiremax", "-t", "4", "-v"
+                ).redirectErrorStream(true).start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                process.waitFor()
+                return output.ifBlank { "Preload berhasil" }
+            }
+            return "Preload selesai."
+        }
+
+        // === LOGIKA UNTUK TWEAK BIASA (60HZ, SF, dll) ===
+        require(state == "aktif" || state == "nonaktif") { "Status tidak valid" }
+        val process = ProcessBuilder(file.absolutePath, state).redirectErrorStream(true).start()
+        val output = process.inputStream.bufferedReader().use { it.readText() }
         val exitCode = process.waitFor()
-
-        check(exitCode == 0) {
-            "Binary gagal. Exit code: $exitCode\n$output"
-        }
-
+        check(exitCode == 0) { "Binary gagal. Exit code: $exitCode\n$output" }
         return output.ifBlank { "Berhasil dijalankan" }
     }
 
