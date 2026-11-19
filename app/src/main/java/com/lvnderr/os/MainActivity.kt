@@ -38,12 +38,8 @@ class MainActivity : Activity() {
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            // Simpan ke companion object agar bisa diakses oleh PreloadService
             MainActivity.remoteService = ILvnderService.Stub.asInterface(service)
-            
             Toast.makeText(this@MainActivity, "LVNDERR Shizuku terhubung", Toast.LENGTH_SHORT).show()
-            
-            // Beritahu WebView bahwa Shizuku sudah jalan
             runOnUiThread {
                 webView.evaluateJavascript("updateShizukuStatus(true)", null)
             }
@@ -51,7 +47,6 @@ class MainActivity : Activity() {
 
         override fun onServiceDisconnected(name: ComponentName?) {
             MainActivity.remoteService = null
-            // Beritahu WebView bahwa Shizuku terputus
             runOnUiThread {
                 webView.evaluateJavascript("updateShizukuStatus(false)", null)
             }
@@ -68,7 +63,6 @@ class MainActivity : Activity() {
 
     private val binderListener = Shizuku.OnBinderReceivedListener {
         checkShizukuPermission()
-        // Jika Shizuku baru dibuka, cek status dan update UI
         runOnUiThread {
             webView.evaluateJavascript("updateShizukuStatus(${MainActivity.remoteService != null})", null)
         }
@@ -113,36 +107,45 @@ class MainActivity : Activity() {
 
     inner class LvnderBridge {
 
+        // === FUNGSI ASYNC UNTUK MENCEGAH APLIKASI STUCK (FREEZE) ===
         @JavascriptInterface
-        fun exec(binary: String, state: String): String {
-            return try {
-                val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
-                
-                var output = ""
-                // === LOGIKA PENERJEMAH UNTUK PRELOADER ===
-                if (binary == "lvnderrpreload") {
-                    if (state == "aktif") {
-                        // Perintah Illuminati: preload MLBB & FF, 4 thread, verbose
-                        val args = "-a com.mobile.legends -a com.dts.freefiremax -t 4 -v"
-                        output = service.exec(binary, args)
+        fun execAsync(binary: String, state: String, callbackId: String) {
+            Thread {
+                var resultString = ""
+                try {
+                    val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
+                    
+                    var output = ""
+                    // Logika Penerjemah Preloader (jika dipanggil lewat exec biasa)
+                    if (binary == "lvnderrpreload") {
+                        if (state == "aktif") {
+                            val args = "-a com.mobile.legends -a com.dts.freefiremax -t 4 -v"
+                            output = service.exec(binary, args)
+                        } else {
+                            output = "Preload dihentikan."
+                        }
                     } else {
-                        output = "Preload dihentikan."
+                        // Logika Normal Tweak Lainnya
+                        output = service.exec(binary, state)
                     }
-                } else {
-                    // === LOGIKA NORMAL UNTUK TWEAK LAIN ===
-                    output = service.exec(binary, state)
+
+                    resultString = JSONObject().apply {
+                        put("success", true)
+                        put("output", output)
+                    }.toString()
+                } catch (e: Exception) {
+                    resultString = JSONObject().apply {
+                        put("success", false)
+                        put("error", e.message ?: "Eksekusi gagal")
+                    }.toString()
                 }
 
-                JSONObject().apply {
-                    put("success", true)
-                    put("output", output)
-                }.toString()
-            } catch (e: Exception) {
-                JSONObject().apply {
-                    put("success", false)
-                    put("error", e.message ?: "Eksekusi gagal")
-                }.toString()
-            }
+                // Kirim hasil kembali ke JavaScript (Main Thread)
+                val finalResult = resultString
+                runOnUiThread {
+                    webView.evaluateJavascript("window.lvnderCallback('$callbackId', ${JSONObject.quote(finalResult)})", null)
+                }
+            }.start()
         }
 
         // === FUNGSI UNTUK MENYALAKAN FOREGROUND SERVICE (PRELOADER) ===
