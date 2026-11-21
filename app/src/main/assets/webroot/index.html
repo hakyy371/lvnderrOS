@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>lvnderrOS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -15,18 +18,17 @@
     --border: rgba(187,134,252,.18);
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Poppins', sans-serif; }
 html { scroll-behavior: smooth; }
 body {
     margin: 0; min-height: 100vh; padding: 22px 16px calc(125px + env(safe-area-inset-bottom));
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: radial-gradient(circle at 90% 0%, #241343 0%, transparent 42%), radial-gradient(circle at 0% 60%, #160d29 0%, transparent 40%), var(--bg);
     color: #e2dcf8; overflow-x: hidden;
 }
 button { font-family: inherit; }
 .container { width: 100%; max-width: 480px; margin: auto; }
 
-/* PAGE TRANSITION (Lebih Ringan & Cepat) */
+/* PAGE TRANSITION */
 .page { display: none; opacity: 0; }
 .page.active { display: block; animation: pageEnter .3s ease-out both; }
 @keyframes pageEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -34,18 +36,18 @@ button { font-family: inherit; }
 /* HOME */
 .home-top { display: flex; align-items: center; justify-content: space-between; padding: 12px 5px 22px; }
 .home-brand { font-size: 25px; font-weight: 900; letter-spacing: 1.5px; color: white; text-shadow: 0 0 18px rgba(187,134,252,.4); }
-.home-subtitle { color: #967bb8; font-size: 9px; letter-spacing: 3px; margin-top: 5px; }
-.home-version { color: #d5b5ff; background: rgba(187,134,252,.12); border: 1px solid var(--border); padding: 7px 12px; border-radius: 20px; font-size: 10px; }
+.home-subtitle { color: #967bb8; font-size: 9px; letter-spacing: 3px; margin-top: 5px; font-weight: 600; }
+.home-version { color: #d5b5ff; background: rgba(187,134,252,.12); border: 1px solid var(--border); padding: 7px 12px; border-radius: 20px; font-size: 10px; font-weight: 600; }
 .anime-hero { position: relative; overflow: hidden; border-radius: 20px; border: 1px solid rgba(187,134,252,.3); background: #10091c; box-shadow: 0 12px 35px #0008; }
 .anime-hero img { display: block; width: 100%; height: auto; max-height: 330px; object-fit: contain; }
-.hero-tag { position: absolute; top: 14px; left: 14px; z-index: 2; background: rgba(10,5,20,.75); backdrop-filter: blur(5px); border: 1px solid rgba(187,134,252,.4); color: #d9baff; padding: 7px 12px; border-radius: 20px; font-size: 9px; letter-spacing: 2px; }
+.hero-tag { position: absolute; top: 14px; left: 14px; z-index: 2; background: rgba(10,5,20,.75); backdrop-filter: blur(5px); border: 1px solid rgba(187,134,252,.4); color: #d9baff; padding: 7px 12px; border-radius: 20px; font-size: 9px; letter-spacing: 2px; font-weight: 600; }
 .home-intro { padding: 25px 7px 22px; }
 .home-intro h1 { font-size: 27px; font-weight: 900; margin: 0; background: linear-gradient(90deg,#fff,#d8b4ff,#9c65ec); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.home-author { color: var(--purple); font-size: 10px; letter-spacing: 3px; margin-top: 9px; }
+.home-author { color: var(--purple); font-size: 10px; letter-spacing: 3px; margin-top: 9px; font-weight: 600; }
 .home-description { color: #9386a8; font-size: 11px; line-height: 1.8; margin-top: 12px; }
 .home-line { height: 1px; background: linear-gradient(90deg,transparent,#bb86fc,transparent); margin: 5px 0 22px; }
 .home-footer { text-align: center; padding: 12px 0 20px; }
-.home-footer-title { color: #b98aff; font-size: 10px; letter-spacing: 4px; }
+.home-footer-title { color: #b98aff; font-size: 10px; letter-spacing: 4px; font-weight: 700; }
 .home-footer-text { color: #665675; font-size: 9px; margin-top: 8px; }
 
 /* DEVICE INFO CARD & SHIZUKU STATUS */
@@ -57,9 +59,15 @@ button { font-family: inherit; }
 .shizuku-status.not-running { background: rgba(255, 82, 82, 0.15); color: #ff5252; border: 1px solid rgba(255, 82, 82, 0.3); }
 #device-output { font-family: monospace; font-size: 11px; line-height: 1.7; color: var(--purple); white-space: pre-wrap; margin: 0; }
 
+/* SKELETON LOADING */
+.skeleton-wrapper { display: flex; flex-direction: column; gap: 8px; }
+.skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+.skeleton-line.short { width: 60%; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
 /* APPLICATIONS */
 .app-heading { padding: 12px 5px 22px; }
-.app-heading h2 { margin: 0; color: white; font-size: 25px; }
+.app-heading h2 { margin: 0; color: white; font-size: 25px; font-weight: 700; }
 .app-heading p { color: #8b80b6; font-size: 12px; }
 .app-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
 .app-item { border: 1px solid var(--border); background: rgba(25,20,45,.65); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px 10px; color: white; display: flex; flex-direction: column; align-items: center; gap: 13px; min-height: 145px; cursor: pointer; transition: transform .2s ease, background .2s ease; animation: cardEnter .3s both; }
@@ -79,7 +87,7 @@ button { font-family: inherit; }
 .back-btn:active { transform: scale(.94); }
 .game-title { display: flex; align-items: center; gap: 13px; margin-bottom: 20px; padding: 15px; border: 1px solid var(--border); background: rgba(25,20,45,.65); border-radius: 16px; }
 .game-title img { width: 53px; height: 53px; object-fit: cover; border-radius: 13px; }
-.game-title h3 { color: white; margin: 0; font-size: 16px; }
+.game-title h3 { color: white; margin: 0; font-size: 16px; font-weight: 700; }
 .game-title p { color: var(--muted); font-size: 11px; margin: 5px 0 0; }
 
 /* FEATURE CARDS */
@@ -90,7 +98,7 @@ button { font-family: inherit; }
 .card.feature-enabled { border-color: rgba(187,134,252,.55); background: rgba(65,35,95,.32); box-shadow: 0 0 20px rgba(187,134,252,.09); }
 .feature-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .feature-info { flex: 1; min-width: 0; }
-.feature-info h3 { font-size: 14px; color: white; margin: 0; }
+.feature-info h3 { font-size: 14px; color: white; margin: 0; font-weight: 600; }
 .feature-info p { color: var(--muted); font-size: 11px; line-height: 1.6; margin: 6px 0 0; }
 
 /* SMOOTH TOGGLE & LOADING ANIMATION */
@@ -100,12 +108,8 @@ button { font-family: inherit; }
 .slider:before { content: ""; position: absolute; height: 22px; width: 22px; left: 4px; bottom: 4px; border-radius: 50%; background: white; box-shadow: 0 2px 5px #0005; transition: transform .3s cubic-bezier(.22,1,.36,1); }
 .switch input:checked + .slider { background: linear-gradient(135deg,#bb86fc,#9c27b0); }
 .switch input:checked + .slider:before { transform: translateX(22px); }
-
-/* Loading Spinner on Disabled */
 .switch input:disabled + .slider { opacity: .6; cursor: wait; }
-.switch input:disabled + .slider:before { 
-    animation: pulseLoading 1s infinite alternate;
-}
+.switch input:disabled + .slider:before { animation: pulseLoading 1s infinite alternate; }
 @keyframes pulseLoading { from { transform: scale(1); } to { transform: scale(0.8); background: #ddd; } }
 
 /* TERMINAL */
@@ -115,11 +119,18 @@ button { font-family: inherit; }
 
 /* FLOATING NAVIGATION */
 .bottom-nav { position: fixed; z-index: 99; bottom: calc(18px + env(safe-area-inset-bottom)); left: 18px; right: 18px; max-width: 440px; margin: auto; border: 1px solid rgba(187,134,252,.22); border-radius: 22px; padding: 10px 20px; background: rgba(15,9,29,.88); backdrop-filter: blur(15px); box-shadow: 0 10px 35px #0007; display: flex; justify-content: center; align-items: center; gap: 55px; }
-.nav-btn { position: relative; border: 0; background: transparent; color: #80749f; cursor: pointer; font-size: 11px; font-weight: 600; min-width: 65px; padding: 7px 10px; border-radius: 14px; transition: .2s ease; }
-.nav-btn span { display: block; font-size: 23px; margin-bottom: 4px; transition: transform .2s ease; }
+.nav-btn { position: relative; border: 0; background: transparent; color: #80749f; cursor: pointer; font-size: 11px; font-weight: 600; min-width: 65px; padding: 7px 10px; border-radius: 14px; transition: .2s ease; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.nav-btn svg { width: 22px; height: 22px; transition: transform .2s ease; }
 .nav-btn.active { color: #d8b4ff; background: rgba(187,134,252,.09); }
-.nav-btn.active span { transform: translateY(-2px) scale(1.08); filter: drop-shadow(0 0 8px #bb86fc); }
+.nav-btn.active svg { transform: translateY(-2px); filter: drop-shadow(0 0 8px #bb86fc); }
 .nav-btn:active { transform: scale(.92); }
+
+/* TOAST NOTIFICATION */
+#toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+.toast { padding: 12px 20px; border-radius: 12px; color: white; font-size: 13px; font-weight: 600; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success { background: rgba(0, 230, 118, 0.9); border: 1px solid #00e676; }
+.toast.error { background: rgba(255, 82, 82, 0.9); border: 1px solid #ff5252; }
 
 /* RESPONSIVE */
 @media(max-width:360px) {
@@ -129,6 +140,10 @@ button { font-family: inherit; }
 </head>
 
 <body>
+
+<!-- CONTAINER UNTUK TOAST -->
+<div id="toast-container"></div>
+
 <div class="container">
 
 <!-- ================= HOME ================= -->
@@ -156,13 +171,21 @@ button { font-family: inherit; }
         </div>
     </div>
 
-    <!-- KOTAK DEVICE INFO -->
+    <!-- KOTAK DEVICE INFO DENGAN SKELETON -->
     <div class="device-info-card">
         <div class="device-info-header">
             <div class="device-info-title">DEVICE INFORMATION</div>
             <div id="shizuku-status" class="shizuku-status not-running">SHIZUKU: NOT RUNNING</div>
         </div>
-        <pre id="device-output">Memuat data perangkat...</pre>
+        <!-- Skeleton Loading -->
+        <div id="device-skeleton" class="skeleton-wrapper">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line"></div>
+        </div>
+        <!-- Data Asli (Disembunyikan dulu) -->
+        <pre id="device-output" style="display: none;"></pre>
     </div>
 
     <div class="home-line"></div>
@@ -182,8 +205,8 @@ button { font-family: inherit; }
     <!-- FITUR TAMBAH GAME -->
     <div style="margin-bottom: 20px; padding: 0 5px;">
         <input type="text" id="newGamePackage" placeholder="Ketik nama paket (cth: com.tencent.ig)" 
-               style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(25,20,45,.65); border: 1px solid var(--border); color: white; margin-bottom: 10px;">
-        <button onclick="tambahGame()" style="width: 100%; padding: 12px; border-radius: 10px; background: var(--purple); color: black; font-weight: bold; border: none; transition: 0.2s;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
+               style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(25,20,45,.65); border: 1px solid var(--border); color: white; margin-bottom: 10px; font-family: inherit;">
+        <button onclick="tambahGame()" style="width: 100%; padding: 12px; border-radius: 10px; background: var(--purple); color: black; font-weight: bold; border: none; transition: 0.2s; font-family: inherit;" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform='scale(1)'">
             + Tambah Game ke Booster
         </button>
     </div>
@@ -214,13 +237,35 @@ button { font-family: inherit; }
 </section>
 </div>
 
-<!-- ================= BOTTOM NAV ================= -->
+<!-- ================= BOTTOM NAV (DENGAN IKON SVG) ================= -->
 <nav class="bottom-nav">
-    <button class="nav-btn active" id="homeNav" onclick="showPage('home')"><span>⌂</span>HOME</button>
-    <button class="nav-btn" id="appsNav" onclick="showPage('apps')"><span>▦</span>APLIKASI</button>
+    <button class="nav-btn active" id="homeNav" onclick="showPage('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        HOME
+    </button>
+    <button class="nav-btn" id="appsNav" onclick="showPage('apps')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        APLIKASI
+    </button>
 </nav>
 
 <script>
+/* TOAST NOTIFICATION FUNCTION */
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerText = message;
+    container.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
 /* NAVIGATION */
 let currentPage = "home";
 let isNavigating = false;
@@ -405,7 +450,6 @@ async function eksekusiTweak(input) {
     updateLog("Menjalankan " + binary + " " + state + "...");
     
     try {
-        // === LOGIKA KHUSUS PRELOADER (FOREGROUND SERVICE) ===
         if (binary === "lvnderrpreload") {
             window.lvnder.togglePreloadService(state);
             if (card) card.classList.toggle("feature-enabled", enabled);
@@ -414,7 +458,6 @@ async function eksekusiTweak(input) {
             return; 
         }
 
-        // === LOGIKA KHUSUS RENDERTHREAD BOOSTER ===
         if (binary === "lvndThread.sh") {
             const raw = window.lvnder.toggleRenderThread(state);
             const result = typeof raw === "string" ? JSON.parse(raw) : raw;
@@ -425,7 +468,6 @@ async function eksekusiTweak(input) {
             return;
         }
 
-        // === LOGIKA NORMAL UNTUK TWEAK LAIN (Pakai Async) ===
         const raw = await execAsync(binary, state);
         const result = typeof raw === "string" ? JSON.parse(raw) : raw;
         if (!result || result.success !== true) throw new Error(result?.error || "Eksekusi binary gagal.");
@@ -443,19 +485,19 @@ async function eksekusiTweak(input) {
 /* FUNGSI TAMBAH GAME */
 function tambahGame() {
     const pkg = document.getElementById("newGamePackage").value.trim();
-    if (!pkg) return alert("Masukkan nama paket game!");
+    if (!pkg) return showToast("Masukkan nama paket game!", "error");
     
     if (typeof lvnder !== 'undefined' && lvnder.addGameToBooster) {
         const raw = lvnder.addGameToBooster(pkg);
         const res = JSON.parse(raw);
         if (res.success) {
-            alert("Berhasil: " + res.output);
+            showToast(res.output, "success");
             document.getElementById("newGamePackage").value = "";
         } else {
-            alert("Gagal: " + res.error);
+            showToast("Gagal: " + res.error, "error");
         }
     } else {
-        alert("Bridge tidak tersedia.");
+        showToast("Bridge tidak tersedia.", "error");
     }
 }
 
@@ -479,16 +521,30 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("appsPage").style.display = "none";
     currentPage = "home";
 
-    try {
-        if (typeof lvnder !== 'undefined' && lvnder.getDeviceInfo) {
-            const info = lvnder.getDeviceInfo();
-            document.getElementById("device-output").textContent = info;
-        } else {
-            document.getElementById("device-output").textContent = "Bridge 'lvnder' tidak ditemukan.";
+    // Simulasi pemuatan data Device Info (Skeleton Loading)
+    setTimeout(() => {
+        try {
+            if (typeof lvnder !== 'undefined' && lvnder.getDeviceInfo) {
+                const info = lvnder.getDeviceInfo();
+                
+                // Sembunyikan Skeleton, Tampilkan Teks
+                document.getElementById("device-skeleton").style.display = "none";
+                const outputEl = document.getElementById("device-output");
+                outputEl.style.display = "block";
+                outputEl.textContent = info;
+            } else {
+                document.getElementById("device-skeleton").style.display = "none";
+                const outputEl = document.getElementById("device-output");
+                outputEl.style.display = "block";
+                outputEl.textContent = "Bridge 'lvnder' tidak ditemukan.";
+            }
+        } catch (e) {
+            document.getElementById("device-skeleton").style.display = "none";
+            const outputEl = document.getElementById("device-output");
+            outputEl.style.display = "block";
+            outputEl.textContent = "Gagal memuat data: " + e.message;
         }
-    } catch (e) {
-        document.getElementById("device-output").textContent = "Gagal memuat data: " + e.message;
-    }
+    }, 800); // Delay 800ms agar animasi skeleton terlihat
 
     try {
         if (typeof lvnder !== 'undefined' && lvnder.isShizukuRunning) {
