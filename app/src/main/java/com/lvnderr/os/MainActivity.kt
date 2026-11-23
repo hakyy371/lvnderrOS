@@ -201,35 +201,54 @@ class MainActivity : Activity() {
             }
         }
 
-        // === FUNGSI BARU: AUTO-ICON BASE64 ===
+        
+        // === AUTO ICON BASE64 ===
         @JavascriptInterface
         fun getAppIconBase64(packageName: String): String {
             return try {
-                val pm = packageManager
-                val drawable = pm.getApplicationIcon(packageName)
-                
-                val bitmap = if (drawable is BitmapDrawable) {
-                    drawable.bitmap
-                } else {
-                    val bmp = Bitmap.createBitmap(
-                        drawable.intrinsicWidth, 
-                        drawable.intrinsicHeight, 
-                        Bitmap.Config.ARGB_8888
-                    )
-                    val canvas = Canvas(bmp)
-                    drawable.setBounds(0, 0, canvas.width, canvas.height)
-                    drawable.draw(canvas)
-                    bmp
-                }
-                
+                val drawable = packageManager.getApplicationIcon(packageName)
+
+                // Ukuran icon hasil render
+                val size = 192
+
+                val bitmap = Bitmap.createBitmap(
+                    size,
+                    size,
+                    Bitmap.Config.ARGB_8888
+                )
+
+                val canvas = Canvas(bitmap)
+
+                drawable.setBounds(0, 0, size, size)
+                drawable.draw(canvas)
+
                 val stream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                val byteArray = stream.toByteArray()
-                "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
+
+                bitmap.compress(
+                    Bitmap.CompressFormat.PNG,
+                    100,
+                    stream
+                )
+
+                val encoded = Base64.encodeToString(
+                    stream.toByteArray(),
+                    Base64.NO_WRAP
+                )
+
+                bitmap.recycle()
+
+                "data:image/png;base64,$encoded"
+
             } catch (e: Exception) {
-                "" // Jika gagal, kembalikan string kosong
+                android.util.Log.e(
+                    "LVNDERR_ICON",
+                    "Gagal mengambil icon: $packageName",
+                    e
+                )
+                ""
             }
         }
+
 
         // === FUNGSI BARU: AUTO-NAME ===
         @JavascriptInterface
