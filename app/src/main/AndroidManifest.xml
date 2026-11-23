@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -5,24 +6,15 @@
 
     <uses-sdk tools:overrideLibrary="rikka.shizuku.api" />
 
-    <!-- INTERNET -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
-    <!-- SHIZUKU -->
-    <uses-permission
-        android:name="moe.shizuku.manager.permission.API_V23" />
+    <!-- Foreground Service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- FOREGROUND SERVICE -->
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <uses-permission
-        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-
-    <uses-permission
-        android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- VISIBILITAS APLIKASI -->
+    <!-- Visibilitas aplikasi -->
     <queries>
         <package android:name="com.mobile.legends" />
         <package android:name="com.dts.freefiremax" />
@@ -46,7 +38,6 @@
         android:roundIcon="@drawable/gojobattle"
         android:theme="@android:style/Theme.Material.NoActionBar">
 
-        <!-- MAIN ACTIVITY -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -58,24 +49,19 @@
 
         </activity>
 
-        <!-- PRELOAD SERVICE -->
         <service
             android:name=".PreloadService"
             android:foregroundServiceType="dataSync"
             android:exported="false" />
 
-        <!-- TOAST RECEIVER -->
         <receiver
             android:name=".ToastReceiver"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="com.lvnderrOS.SHOW_TOAST" />
             </intent-filter>
-
         </receiver>
 
-        <!-- SHIZUKU PROVIDER -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
@@ -85,5 +71,4 @@
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
-
 </manifest>
