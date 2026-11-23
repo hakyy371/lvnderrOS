@@ -15,6 +15,11 @@ import org.json.JSONObject
 import rikka.shizuku.Shizuku
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.util.Base64
+import java.io.ByteArrayOutputStream
 
 class MainActivity : Activity() {
 
@@ -116,7 +121,6 @@ class MainActivity : Activity() {
                     val service = MainActivity.remoteService ?: throw IllegalStateException("Shizuku belum terhubung")
                     
                     var output = ""
-                    // Logika Penerjemah Preloader (jika dipanggil lewat exec biasa)
                     if (binary == "lvnderrpreload") {
                         if (state == "aktif") {
                             val args = "-a com.mobile.legends -a com.dts.freefiremax -t 4 -v"
@@ -125,7 +129,6 @@ class MainActivity : Activity() {
                             output = "Preload dihentikan."
                         }
                     } else {
-                        // Logika Normal Tweak Lainnya
                         output = service.exec(binary, state)
                     }
 
@@ -140,7 +143,6 @@ class MainActivity : Activity() {
                     }.toString()
                 }
 
-                // Kirim hasil kembali ke JavaScript (Main Thread)
                 val finalResult = resultString
                 runOnUiThread {
                     webView.evaluateJavascript("window.lvnderCallback('$callbackId', ${JSONObject.quote(finalResult)})", null)
@@ -199,6 +201,48 @@ class MainActivity : Activity() {
             }
         }
 
+        // === FUNGSI BARU: AUTO-ICON BASE64 ===
+        @JavascriptInterface
+        fun getAppIconBase64(packageName: String): String {
+            return try {
+                val pm = packageManager
+                val drawable = pm.getApplicationIcon(packageName)
+                
+                val bitmap = if (drawable is BitmapDrawable) {
+                    drawable.bitmap
+                } else {
+                    val bmp = Bitmap.createBitmap(
+                        drawable.intrinsicWidth, 
+                        drawable.intrinsicHeight, 
+                        Bitmap.Config.ARGB_8888
+                    )
+                    val canvas = Canvas(bmp)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                    bmp
+                }
+                
+                val stream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                val byteArray = stream.toByteArray()
+                "data:image/png;base64," + Base64.encodeToString(byteArray, Base64.NO_WRAP)
+            } catch (e: Exception) {
+                "" // Jika gagal, kembalikan string kosong
+            }
+        }
+
+        // === FUNGSI BARU: AUTO-NAME ===
+        @JavascriptInterface
+        fun getAppName(packageName: String): String {
+            return try {
+                val pm = packageManager
+                val appInfo = pm.getApplicationInfo(packageName, 0)
+                pm.getApplicationLabel(appInfo).toString()
+            } catch (e: Exception) {
+                packageName // Jika gagal, tampilkan nama paketnya
+            }
+        }
+
         // Fungsi untuk mengecek apakah Shizuku sedang berjalan & terhubung
         @JavascriptInterface
         fun isShizukuRunning(): Boolean {
@@ -214,44 +258,6 @@ class MainActivity : Activity() {
                     if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.board.platform); fi
                     if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.hardware); fi
                     if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(getprop ro.product.board); fi
-                    if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(grep -m1 'Hardware' /proc/cpuinfo | cut -d: -f2 | xargs); fi
-                    
-                    echo "DEVICE   : ${'$'}(getprop ro.product.model)"
-                    echo "BRAND    : ${'$'}(getprop ro.product.brand)"
-                    echo "ANDROID  : ${'$'}(getprop ro.build.version.release)"
-                    echo "SDK      : ${'$'}(getprop ro.build.version.sdk)"
-                    echo "KERNEL   : ${'$'}(uname -r)"
-                    echo "CHIPSET  : ${'$'}CHIPSET_VAL"
-                """.trimIndent()
-
-                val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", script))
-                val reader = BufferedReader(InputStreamReader(process.inputStream))
-                val output = StringBuilder()
-                var line: String?
-                while (reader.readLine().also { line = it } != null) {
-                    output.append(line).append("\n")
-                }
-                output.toString().trim()
-            } catch (e: Exception) {
-                "Gagal membaca data: ${e.message}"
-            }
-        }
-    }
-
-    override fun onDestroy() {
-        Shizuku.removeRequestPermissionResultListener(permissionListener)
-        Shizuku.removeBinderReceivedListener(binderListener)
-
-        if (Shizuku.pingBinder()) {
-            try {
-                Shizuku.unbindUserService(serviceArgs, serviceConnection, false)
-            } catch (_: Exception) {}
-        }
-
-        webView.destroy()
-        super.onDestroy()
-    }
-} fi
                     if [ -z "${'$'}CHIPSET_VAL" ]; then CHIPSET_VAL=${'$'}(grep -m1 'Hardware' /proc/cpuinfo | cut -d: -f2 | xargs); fi
                     
                     echo "DEVICE   : ${'$'}(getprop ro.product.model)"
