@@ -1,4 +1,3 @@
-
 #!/system/bin/sh
 
 GAME_LIST="/sdcard/.lvndThread/lvndgamelist.txt"
