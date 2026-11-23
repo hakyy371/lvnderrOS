@@ -5,13 +5,39 @@
 
     <uses-sdk tools:overrideLibrary="rikka.shizuku.api" />
 
+    <!-- INTERNET -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
-    
-    <!-- IZIN UNTUK FOREGROUND SERVICE (PRELOADER) -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <!-- SHIZUKU -->
+    <uses-permission
+        android:name="moe.shizuku.manager.permission.API_V23" />
+
+    <!-- FOREGROUND SERVICE -->
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- VISIBILITAS APLIKASI -->
+    <queries>
+        <package android:name="com.mobile.legends" />
+        <package android:name="com.dts.freefiremax" />
+        <package android:name="com.tencent.ig" />
+        <package android:name="com.activision.callofduty.shooter" />
+        <package android:name="com.roblox.client" />
+        <package android:name="com.miHoYo.GenshinImpact" />
+        <package android:name="com.riotgames.league.wildrift" />
+        <package android:name="com.mojang.minecraftpe" />
+        <package android:name="com.HoYoverse.hkrpgoversea" />
+        <package android:name="com.garena.game.kgid" />
+        <package android:name="com.supercell.clashofclans" />
+        <package android:name="com.supercell.clashroyale" />
+        <package android:name="com.gameloft.android.ANMP.GloftA9HM" />
+    </queries>
 
     <application
         android:allowBackup="false"
@@ -19,7 +45,8 @@
         android:icon="@drawable/gojobattle"
         android:roundIcon="@drawable/gojobattle"
         android:theme="@android:style/Theme.Material.NoActionBar">
-        
+
+        <!-- MAIN ACTIVITY -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -31,22 +58,24 @@
 
         </activity>
 
-        <!-- DAFTARKAN PRELOAD SERVICE DI SINI -->
-        <service 
-            android:name=".PreloadService" 
-            android:foregroundServiceType="dataSync" 
+        <!-- PRELOAD SERVICE -->
+        <service
+            android:name=".PreloadService"
+            android:foregroundServiceType="dataSync"
             android:exported="false" />
 
-        <!-- DAFTARKAN TOAST RECEIVER DI SINI -->
-        <receiver 
-            android:name=".ToastReceiver" 
+        <!-- TOAST RECEIVER -->
+        <receiver
+            android:name=".ToastReceiver"
             android:exported="true">
+
             <intent-filter>
-                <!-- Action ini harus sama persis dengan yang ada di lvndThread.sh -->
                 <action android:name="com.lvnderrOS.SHOW_TOAST" />
             </intent-filter>
+
         </receiver>
 
+        <!-- SHIZUKU PROVIDER -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
@@ -56,4 +85,5 @@
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     </application>
+
 </manifest>
