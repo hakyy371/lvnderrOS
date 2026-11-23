@@ -73,7 +73,17 @@ button { font-family: inherit; }
 .app-item { border: 1px solid var(--border); background: rgba(25,20,45,.65); backdrop-filter: blur(10px); border-radius: 20px; padding: 20px 10px; color: white; display: flex; flex-direction: column; align-items: center; gap: 13px; min-height: 145px; cursor: pointer; transition: transform .2s ease, background .2s ease; animation: cardEnter .3s both; }
 @keyframes cardEnter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .app-item:active { transform: scale(.94); background: rgba(187,134,252,.18); }
-.app-item img { width: 76px; height: 76px; border-radius: 18px; object-fit: cover; box-shadow: 0 5px 18px #0007; }
+
+.app-item img {
+    width: 76px;
+    height: 76px;
+    border-radius: 18px;
+    object-fit: cover;
+    box-shadow: 0 5px 18px #0007;
+    background: rgba(255, 255, 255, 0.05);
+    display: block;
+}
+
 .app-item span { font-size: 12px; font-weight: 700; text-align: center; line-height: 1.2; }
 
 /* GAME DETAIL */
@@ -132,7 +142,20 @@ button { font-family: inherit; }
 
 /* RESPONSIVE */
 @media(max-width:360px) {
-    .home-brand { font-size: 22px; } .home-intro h1 { font-size: 24px; } .app-item img { width: 65px; height: 65px; } .bottom-nav { gap: 35px; left: 14px; right: 14px; padding: 9px 15px; }
+    .home-brand { font-size: 22px; }
+    .home-intro h1 { font-size: 24px; }
+
+    .app-item img {
+        width: 76px;
+        height: 76px;
+        border-radius: 18px;
+        object-fit: cover;
+        box-shadow: 0 5px 18px #0007;
+        background: rgba(255, 255, 255, 0.05);
+        display: block;
+    }
+
+    .bottom-nav { gap: 35px; left: 14px; right: 14px; padding: 9px 15px; }
 }
 </style>
 </head>
@@ -147,7 +170,7 @@ button { font-family: inherit; }
 <section id="homePage" class="page active">
     <div class="home-top">
         <div>
-            <div class="home-brand">lvnderrOS Optimize</div>
+            <div class="home-brand">lvnderrOS</div>
             <div class="home-subtitle">ANIME DARK EDITION</div>
         </div>
         <div class="home-version">V.8.0</div>
@@ -159,7 +182,7 @@ button { font-family: inherit; }
     </div>
 
     <div class="home-intro">
-        <h1>lvnderrOS Optimize Center</h1>
+        <h1>lvnderrOS Optimize</h1>
         <div class="home-author">BY HKYY LAVENDERR</div>
         <div class="home-description">
             A unique Android experience inspired by the world
@@ -238,52 +261,51 @@ button { font-family: inherit; }
 </nav>
 
 <script>
-/* =================================
-   DATA APLIKASI POPULER
-================================= */
-// Daftar Game Populer (Otomatis ambil ikon & nama asli dari HP pengguna)
+/* === DAFTAR GAME POPULER (IKON STATIS) === */
+// Jika game diinstal, ikon akan diambil dari HP. Jika tidak, pakai ikon dari folder.
 let installedGames = JSON.parse(localStorage.getItem('lvnderr_games_v2')) || [
-    { pkg: 'com.mobile.legends', name: 'Mobile Legends' },
-    { pkg: 'com.dts.freefiremax', name: 'Free Fire MAX' },
-    { pkg: 'com.tencent.ig', name: 'PUBG Mobile' },
-    { pkg: 'com.activision.callofduty.shooter', name: 'COD Mobile' },
-    { pkg: 'com.roblox.client', name: 'Roblox' },
-    { pkg: 'com.miHoYo.GenshinImpact', name: 'Genshin Impact' },
-    { pkg: 'com.riotgames.league.wildrift', name: 'Wild Rift' },
-    { pkg: 'com.mojang.minecraftpe', name: 'Minecraft' },
-    { pkg: 'com.HoYoverse.hkrpgoversea', name: 'Honkai: Star Rail' },
-    { pkg: 'com.garena.game.kgid', name: 'Arena of Valor' },
-    { pkg: 'com.supercell.clashofclans', name: 'Clash of Clans' },
-    { pkg: 'com.supercell.clashroyale', name: 'Clash Royale' },
-    { pkg: 'com.gameloft.android.ANMP.GloftA9HM', name: 'Asphalt 9' },
-    { pkg: 'system', name: 'System Performance' }
+    { pkg: 'com.mobile.legends', name: 'Mobile Legends', icon: 'icons/mlbb.png' },
+    { pkg: 'com.dts.freefiremax', name: 'Free Fire MAX', icon: 'icons/ffmax.png' },
+    { pkg: 'com.tencent.ig', name: 'PUBG Mobile', icon: 'icons/pubg.png' },
+    { pkg: 'com.activision.callofduty.shooter', name: 'COD Mobile', icon: 'icons/cod.png' },
+    { pkg: 'com.roblox.client', name: 'Roblox', icon: 'icons/roblox.png' },
+    { pkg: 'com.miHoYo.GenshinImpact', name: 'Genshin Impact', icon: 'icons/genshin.png' },
+    { pkg: 'com.riotgames.league.wildrift', name: 'Wild Rift', icon: 'icons/wildrift.png' },
+    { pkg: 'com.mojang.minecraftpe', name: 'Minecraft', icon: 'icons/minecraft.png' },
+    { pkg: 'com.HoYoverse.hkrpgoversea', name: 'Honkai: Star Rail', icon: 'icons/honkai.png' },
+    { pkg: 'com.garena.game.kgid', name: 'Arena of Valor', icon: 'icons/aov.png' },
+    { pkg: 'com.supercell.clashofclans', name: 'Clash of Clans', icon: 'icons/coc.png' },
+    { pkg: 'com.supercell.clashroyale', name: 'Clash Royale', icon: 'icons/cr.png' },
+    { pkg: 'com.gameloft.android.ANMP.GloftA9HM', name: 'Asphalt 9', icon: 'icons/asphalt9.png' },
+    { pkg: 'system', name: 'System Performance', icon: 'icons/system.png' }
 ];
 
 /* FUNGSI UNTUK MEMBUAT KOTAK APLIKASI OTOMATIS */
 function renderAppGrid() {
     const grid = document.getElementById("appGrid");
-    grid.innerHTML = ""; // Kosongkan dulu
+    grid.innerHTML = ""; 
     
     installedGames.forEach((game, index) => {
-        let imgSrc = "";
+        let imgSrc = game.icon; // Gunakan ikon lokal bawaan HTML
         
-        if (game.pkg === "system") {
-            imgSrc = "icons/system.png"; 
-        } else {
-            // Minta ikon Base64 ke Kotlin (jika ada)
+        // Jika tidak ada ikon lokal, coba minta dari Kotlin (jika game terinstal)
+        if (!imgSrc && game.pkg !== "system") {
             if (typeof lvnder !== 'undefined' && lvnder.getAppIconBase64) {
                 imgSrc = lvnder.getAppIconBase64(game.pkg);
             }
-            // Jika gagal dapat ikon atau aplikasi tidak terinstal, pakai ikon default
-            if (!imgSrc || imgSrc === "") imgSrc = "icons/default.png"; 
         }
+        
+        // Jika tetap kosong, pakai ikon default
+        if (!imgSrc) imgSrc = "icons/default.png";
 
         const btn = document.createElement("button");
         btn.className = "app-item";
-        btn.style.animationDelay = `${index * 0.03}s`; // Animasi muncul bergantian
+        btn.style.animationDelay = `${index * 0.03}s`; 
         btn.onclick = () => openGame(game.pkg);
+        
+        // Hapus alt agar tidak muncul teks rusak/kedip
         btn.innerHTML = `
-            <img src="${imgSrc}" alt="${game.name}" onerror="this.src='icons/default.png'">
+            <img src="${imgSrc}" alt="">
             <span>${game.name}</span>
         `;
         grid.appendChild(btn);
@@ -356,16 +378,14 @@ const systemTweaks = [
 
 /* OPEN & CLOSE GAME */
 function openGame(pkg) {
-    // Cari data game berdasarkan package name
-    const data = installedGames.find(g => g.pkg === pkg) || { name: pkg, pkg: pkg, description: "Custom Game" };
+    const data = installedGames.find(g => g.pkg === pkg) || { name: pkg, pkg: pkg };
     
-    let imgSrc = "";
-    if (pkg === "system") {
-        imgSrc = "icons/system.png";
-    } else if (typeof lvnder !== 'undefined' && lvnder.getAppIconBase64) {
+    let imgSrc = data.icon;
+    // Jika tidak ada ikon statis, coba minta dari HP
+    if (!imgSrc && pkg !== "system" && typeof lvnder !== 'undefined') {
         imgSrc = lvnder.getAppIconBase64(pkg);
-        if (!imgSrc) imgSrc = "icons/default.png";
     }
+    if (!imgSrc) imgSrc = "icons/default.png";
 
     const grid = document.getElementById("appGrid");
     const heading = document.querySelector(".app-heading");
@@ -377,6 +397,7 @@ function openGame(pkg) {
     document.getElementById("selectedGameIcon").src = imgSrc;
     document.getElementById("selectedGameName").textContent = data.name;
     document.getElementById("selectedGameDescription").textContent = "Gaming Optimization Center";
+    // ... (sisa kode openGame biarkan sama seperti sebelumnya)
     document.getElementById("gameContent").innerHTML = "";
     document.getElementById("systemContent").innerHTML = "";
     
