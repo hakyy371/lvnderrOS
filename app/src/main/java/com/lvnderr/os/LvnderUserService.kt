@@ -1,4 +1,3 @@
-
 package com.lvnderr.os
 
 import android.content.Context
@@ -61,46 +60,43 @@ class LvnderUserService(
                 "Tidak bisa memberikan izin eksekusi"
             }
 
-            // RENDERTHREAD BOOSTER
-
+            // RENDERTHREAD
             if (binary == "lvndThread.sh") {
 
-                return if (state == "aktif") {
+                require(state == "aktif" || state == "nonaktif") {
+                    "Status tidak valid"
+                }
 
-                    ProcessBuilder(
+                return if (state == "aktif") {
+                    val process = ProcessBuilder(
                         "sh",
                         file.absolutePath
-                    ).start()
+                    )
+                        .redirectErrorStream(true)
+                        .start()
 
-                    "RenderThread Booster Aktif di background."
-
+                    "RenderThread Booster dijalankan. PID: ${process.pid()}"
                 } else {
-
-                    "RenderThread Booster Dimatikan. Pastikan mekanisme penghentian script dikonfigurasi."
+                    "Permintaan penghentian diterima. Pastikan script memiliki mekanisme stop."
                 }
             }
 
             // ADD GAME
-
             if (binary == "lvndaddgame.sh") {
-
                 return executeProcess(
                     listOf("sh", file.absolutePath, state)
                 )
             }
 
             // PRELOAD
-
             if (binary == "lvnderrpreload") {
 
-                require(
-                    state == "aktif" || state == "nonaktif"
-                ) {
+                require(state == "aktif" || state == "nonaktif") {
                     "Status tidak valid"
                 }
 
                 if (state == "nonaktif") {
-                    return "Preload selesai."
+                    return "Preload dinonaktifkan."
                 }
 
                 return executeProcess(
@@ -115,10 +111,7 @@ class LvnderUserService(
             }
 
             // TWEAK BIASA
-
-            require(
-                state == "aktif" || state == "nonaktif"
-            ) {
+            require(state == "aktif" || state == "nonaktif") {
                 "Status tidak valid"
             }
 
@@ -150,9 +143,7 @@ class LvnderUserService(
                 process.inputStream.bufferedReader().use { reader ->
                     var line: String?
 
-                    while (
-                        reader.readLine().also { line = it } != null
-                    ) {
+                    while (reader.readLine().also { line = it } != null) {
                         synchronized(output) {
                             output.append(line).append('\n')
                         }
@@ -200,6 +191,5 @@ class LvnderUserService(
 
     override fun destroy() {
         Log.d(TAG, "UserService destroy requested")
-        // Biarkan lifecycle Shizuku mengelola penghentian service.
     }
 }
