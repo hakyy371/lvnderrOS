@@ -27,26 +27,17 @@ find_render_tid() {
   return 1
 }
 
-# Toast notification
+# Toast notification (MENIRU GAYA AXMANAGER)
 show_game_toast() {
   case "$1" in
-    com.mobile.legends)
-      message="MLBB Detected - lvndThread Active"
-      ;;
-    com.tencent.ig)
-      message="PUBG Mobile Detected - lvndThread Active"
-      ;;
-    com.dts.freefiremax)
-      message="Free Fire MAX Detected - lvndThread Active"
-      ;;
-    *)
-      return
-      ;;
+    com.mobile.legends) message="MLBB Detected - lvndThread Active" ;;
+    com.tencent.ig) message="PUBG Mobile Detected - lvndThread Active" ;;
+    com.dts.freefiremax) message="Free Fire MAX Detected - lvndThread Active" ;;
+    *) message="$1 Detected" ;;
   esac
 
-  am broadcast \
-    -a "com.lvnderrOS.SHOW_TOAST" \
-    --es message "$message" >/dev/null 2>&1
+  # Menggunakan am start (bukan am broadcast) agar langsung memanggil Activity
+  am start -a "com.lvnderr.os.SHOW_TOAST" -e text "$message" >/dev/null 2>&1
 }
 
 echo "lvndThread: Booster Active. Waiting for game..."
@@ -86,8 +77,8 @@ while :; do
   }
 
   echo "lvndThread: Boosting $pkg"
-
-  # Tampilkan Toast ketika game terdeteksi
+  
+  # Panggil fungsi Toast
   show_game_toast "$pkg"
 
   for pid in $(pidof "$pkg" 2>/dev/null); do
