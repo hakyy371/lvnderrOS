@@ -1,16 +1,15 @@
 package com.lvnderr.os
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
+import android.app.Activity
+import android.os.Bundle
 import android.widget.Toast
 
-class ToastReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        // Mengambil pesan dari script lvndThread.sh
-        val message = intent.getStringExtra("message") ?: "lvndThread Active"
-        
-        // Menampilkan Toast di layar
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+class ToastActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Mengambil teks dengan key "text" (sama seperti AxManager)
+        val message = intent.getStringExtra("text") ?: "lvndThread Active"
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        finish() // Langsung tutup activity setelah memunculkan toast
     }
 }
