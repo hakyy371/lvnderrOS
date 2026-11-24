@@ -31,18 +31,28 @@
 
         </activity>
 
+        <!-- ACTIVITY TRANSPARAN UNTUK MEMUNCULKAN TOAST (Gaya AxManager) -->
+        <activity
+            android:name=".ToastActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.lvnderr.os.SHOW_TOAST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- DAFTARKAN PRELOAD SERVICE DI SINI -->
         <service 
             android:name=".PreloadService" 
             android:foregroundServiceType="dataSync" 
             android:exported="false" />
 
-        <!-- DAFTARKAN TOAST RECEIVER DI SINI -->
+        <!-- DAFTARKAN TOAST RECEIVER DI SINI (Opsional, tetap dibiarkan) -->
         <receiver 
             android:name=".ToastReceiver" 
             android:exported="true">
             <intent-filter>
-                <!-- Action ini harus sama persis dengan yang ada di lvndThread.sh -->
                 <action android:name="com.lvnderrOS.SHOW_TOAST" />
             </intent-filter>
         </receiver>
